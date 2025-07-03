@@ -1,0 +1,85 @@
+{
+    "Status": true,
+    "Result": {
+        "config": {
+            "2c685d818c874c46a241dc7c217bc503": {
+                "id": 31,
+                "machine_id": "2c685d818c874c46a241dc7c217bc503",
+                "store_cycles": true,
+                "store_user_entries": true,
+                "store_machine_alerts": true,
+                "store_cycle_data": false,
+                "store_cycle_input": false,
+                "failuremode_from_machine": false,
+                "setup_from_machine": true,
+                "partmodel_from_machine": false,
+                "produce_from_machine": false,
+                "idle_from_machine": false,
+                "is_cnc_machine": false,
+                "force_dt_inter_cycles": false,
+                "show_dt_intra_cycles": false,
+                "cycle_start_time_required": false,
+                "store_signals_without_processing": true,
+                "use_server_datetime_in_raw_data_ingestion": false,
+                "default_failuremode_category": "rework",
+                "default_cycle_time": 20.0,
+                "reader_sleeptime": 5.0,
+                "default_count_per_cycle": 1,
+                "is_pm_machine": false,
+                "is_bd_machine": false,
+                "is_fpa_machine": false,
+                "is_mc_machine": false,
+                "maintenance_category": null,
+                "wef": 1718016315000.0,
+                "allow_null_value_for_cycledata": false,
+                "repeat_timestamp": false,
+                "partmodel_nfs_group_asset_level": null,
+                "store_raw_timeseries_data": true,
+                "store_cycle_timeseries_info": true,
+                "cycle_detection": true,
+                "store_alarms": true,
+                "upload_cycledata_to_blob": true,
+                "anomaly_detection": true,
+                "store_cycle_tags": true,
+                "store_non_serial_data": true
+            }
+        },
+        "info": {
+            "2c685d818c874c46a241dc7c217bc503": {
+                "machineNo": "",
+                "machineSapCode": "",
+                "make": "SomeMake",
+                "status": "commissioned",
+                "name": "SSP0167",
+                "custom_attributes": {},
+                "hierarchy": "48160dddd6e14cf1bca0a5c19aba5013/5648da9a68fb41f898ef6f08e03e10f2/6c215d7c5adc4ff9956408334b6edd98/c02ad9983f224ce7a97129d43ec96433/4e134a4094614b4eb4965efcb9de8c33",
+                "id": "2c685d818c874c46a241dc7c217bc503",
+                "mfgline_id": null,
+                "mfgline_name": null,
+                "mfgcell_id": "4e134a4094614b4eb4965efcb9de8c33",
+                "mfgcell_name": "A-400",
+                "shop_id": "c02ad9983f224ce7a97129d43ec96433",
+                "shop_name": "Plant-2",
+                "plant_id": "6c215d7c5adc4ff9956408334b6edd98",
+                "plant_name": "Bidadi",
+                "business_id": "5648da9a68fb41f898ef6f08e03e10f2",
+                "business_name": "Transmission",
+                "customer_id": "48160dddd6e14cf1bca0a5c19aba5013",
+                "customer_name": "TKAP"
+            }
+        },
+        "data": {
+            "91472": {
+                "signals": [],
+                "status": {
+                    "spindle_1_load": null
+                },
+                "cycle_data": {
+                    "spindle_1_load": {}
+                }
+            }
+        }
+    },
+    "Message": "ok",
+    "request_trace_id": "4018e1e2842504a48954851b26bb6647"
+}

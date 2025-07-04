@@ -6,7 +6,7 @@ import ProcessFlowPage from './pages/ProcessFlowPage';
 function App() {
   return (
     <Router>
-      <div className="App">
+      <div className="App p-4">
         {/* Simple Navigation Bar (will be replaced by sidebar later) */}
         <nav className="App-nav">
           <ul>

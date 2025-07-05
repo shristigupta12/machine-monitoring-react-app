@@ -11,7 +11,7 @@ export const ScatterPlot = () => {
   const { scatterPoints, minMaxPoints, loading, error } = useSelector((state) => state.scatterMarkings);
 
   useEffect(() => {
-    dispatch(fetchAndProcessScatterMarkings({ machineId: machine, startDate, startTime, endDate, endTime, sequenceTool }));
+    dispatch(fetchAndProcessScatterMarkings());
   }, [dispatch, machine, startDate, startTime, endDate, endTime, sequenceTool]); // Dependencies for re-fetching
 
   if (loading === 'pending') {

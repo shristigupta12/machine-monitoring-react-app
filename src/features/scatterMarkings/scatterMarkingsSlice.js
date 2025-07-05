@@ -5,38 +5,40 @@ import { fetchChangelog } from "../../api/changelogApi";
 // Async Thunk to fetch and process scatter markings data
 export const fetchAndProcessScatterMarkings = createAsyncThunk(
     'scatterMarkings/fetchAndProcessScatterMarkings',
-    async ({ machineId, startDate, startTime, endDate, endTime, sequenceTool }, { rejectWithValue }) => {
+    async (_, { getState, rejectWithValue }) => {
+        const { machine, startDate, startTime, endDate, endTime, sequenceTool } = getState().filters;
         try {
             // Fetch prediction data based on the provided filters
-            const predictionResponse = await fetchPredictionData(machineId, startDate, startTime, endDate, endTime);
+            const predictionResponse = await fetchPredictionData(machine, startDate, startTime, endDate, endTime);
             const cycles = predictionResponse.Result.cycles;
-
+            
             // Fetch changelog data to get configuration parameters like min_max_points
-            const changelogResponse = await fetchChangelog(machineId);
+            const changelogResponse = await fetchChangelog(machine);
             const configParameters = changelogResponse.Result[0]?.config_parameters;
-            const minMaxPoints = configParameters?.sequence[sequenceTool.key] || {};
+            const minMaxPoints = configParameters?.sequence[sequenceTool] || {};
 
             const scatterPoints = [];
             // Iterate through cycles to extract scatter plot points
             for (const timestampKey in cycles) {
                 const cycleInfo = cycles[timestampKey];
 
-
                 // If a specific tool sequence is selected, filter cycles that do not match
-                if (!sequenceTool || sequenceTool.key == null || cycleInfo.data[sequenceTool.key] == undefined || cycleInfo.data[sequenceTool.key] == null) {
+                if (!sequenceTool || sequenceTool == null) {
                     continue; 
                 }
-                
 
-                // Ensure x_value and y_value exist before adding to scatterPoints array
-                if (cycleInfo) {
-                    scatterPoints.push({
-                        x: timestampKey,
-                        y: cycleInfo.data[sequenceTool.key].distance,
-                        time: cycleInfo.start_time, // Include original start time for context
-                        toolSequence: cycleInfo.tool_sequence_number // Include tool sequence number for context
-                    });
+                // Check if the cycle has data for the selected sequence tool
+                if (!cycleInfo.data || !cycleInfo.data[sequenceTool] || !cycleInfo.data[sequenceTool].distance) {
+                    continue; 
                 }
+
+                // Add the scatter point
+                scatterPoints.push({
+                    x: timestampKey,
+                    y: cycleInfo.data[sequenceTool].distance,
+                    time: cycleInfo.start_time, // Include original start time for context
+                    toolSequence: cycleInfo.tool_sequence_number // Include tool sequence number for context
+                });
             }
 
             // Return both the processed scatter points and the min/max points for anomaly detection

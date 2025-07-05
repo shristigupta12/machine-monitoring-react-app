@@ -28,6 +28,7 @@ export const FilterHeading = () => {
 
   const { toolSequences, loading: toolSequencesLoading, error: toolSequencesError } = useSelector((state) => state.toolSequences); // Get tool sequences and loading state
 
+
   // Define static machine options
   const machineOptions = [
     { key: 'SSP0173', value: 'SSP0173' },

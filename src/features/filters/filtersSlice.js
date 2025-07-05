@@ -6,7 +6,7 @@ const initialState = {
     startTime: '00:00:00',
     endDate: '2025-05-27',
     endTime: '23:59:59',
-    sequenceTool: {key: '101', value: 1},
+    sequenceTool: '101',
     search: ''
 }
 

@@ -1,10 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
 import filtersReducer from './features/filters/filtersSlice';
-import machineDataReducer from './features/machineData/machineDataSlice';
+import toolSequencesReducer from './features/toolSequences/toolSequencesSlice';
 
 export const store = configureStore({
     reducer: {
         filters: filtersReducer,
-        machineData: machineDataReducer,
+        toolSequences: toolSequencesReducer,
     }
 })

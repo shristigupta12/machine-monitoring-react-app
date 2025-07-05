@@ -1,7 +1,7 @@
 import Select from '../design-system/select';
 import { Input } from '../design-system/input';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchToolSequences } from '../../features/machineData/machineDataSlice';
+import { fetchToolSequences } from '../../features/toolSequences/toolSequencesSlice';
 import { useEffect } from 'react';
 import {
     setMachine,
@@ -26,7 +26,7 @@ export const FilterHeading = () => {
     search
   } = useSelector((state) => state.filters); // Get filter values from Redux store
 
-  const { toolSequences, loading: toolSequencesLoading, error: toolSequencesError } = useSelector((state) => state.machineData); // Get tool sequences and loading state
+  const { toolSequences, loading: toolSequencesLoading, error: toolSequencesError } = useSelector((state) => state.toolSequences); // Get tool sequences and loading state
 
   // Define static machine options
   const machineOptions = [
@@ -115,10 +115,10 @@ export const FilterHeading = () => {
 
         <Select
           options={toolSequences}
-          placeholder={toolSequencesLoading ? "Loading tools..." : "Select tool"}
+          // placeholder={toolSequencesLoading ? "Loading tools..." : "Select tool"}
           value={sequenceTool}
           onChange={handleSequenceToolChange}
-          disabled={toolSequencesLoading!='succeeded'} 
+          disabled={toolSequencesLoading!=='succeeded'} 
           className="w-48"
         />
         {toolSequencesError && <span className="text-red-500 text-sm">Error: {toolSequencesError}</span>}

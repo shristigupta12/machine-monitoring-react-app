@@ -22,8 +22,8 @@ export const fetchToolSequences = createAsyncThunk(
     }
 )
 
-const machineDataSlice = createSlice({
-    name: 'machineData',
+const toolSequencesSlice = createSlice({
+    name: 'toolSequences',
     initialState: {
       toolSequences: [],
       loading: 'idle', // 'idle' | 'pending' | 'succeeded' | 'failed'
@@ -50,4 +50,4 @@ const machineDataSlice = createSlice({
     },
   });
 
-  export default machineDataSlice.reducer;
+  export default toolSequencesSlice.reducer;

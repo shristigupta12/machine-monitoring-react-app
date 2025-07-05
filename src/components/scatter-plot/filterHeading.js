@@ -132,17 +132,6 @@ export const FilterHeading = () => {
         />
       </div>
 
-      <div className="mt-8 bg-gray-50 p-4 rounded-md border border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">Scatter Plot will go here!</h2>
-        {/* Display current filter values for debugging */}
-        <pre className="text-gray-700 text-sm">
-  Current Filters: {JSON.stringify({ machine, startDate, startTime, endDate, endTime, sequenceTool, search }, null, 2)}
-  <br/>
-  Tool Sequences: {JSON.stringify(toolSequences, null, 2)}
-  <br/>
-  Loading: {JSON.stringify(toolSequencesLoading)}
-</pre>
-      </div>
     </div>
   );
 }

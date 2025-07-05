@@ -36,6 +36,7 @@ export const fetchAndProcessScatterMarkings = createAsyncThunk(
                 scatterPoints.push({
                     x: timestampKey,
                     y: cycleInfo.data[sequenceTool].distance,
+                    anomaly: cycleInfo.data[sequenceTool].anomaly,
                     time: cycleInfo.start_time, // Include original start time for context
                     toolSequence: cycleInfo.tool_sequence_number // Include tool sequence number for context
                 });

@@ -1,8 +1,9 @@
 import React, { useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAndProcessScatterMarkings } from '../../../features/scatterMarkings/scatterMarkingsSlice';
+import { showTimeSeriesGraph, fetchAndProcessTimeSeriesData } from '../../../features/timeSeriesGraph/timeSeriesGraphSlice'; // Import actions
 import * as d3 from 'd3';
-import moment from 'moment'; // Ensure moment is imported if not already
+import moment from 'moment';
 
 export const ScatterPlot = () => {
   const dispatch = useDispatch();
@@ -12,27 +13,23 @@ export const ScatterPlot = () => {
   const svgRef = useRef();
   const tooltipRef = useRef();
 
-  // Define color mapping based on anomaly status from Instructions.pdf 
   const getColorForAnomaly = (anomaly) => {
     if (anomaly === false) {
-      return '#4caf4fcb'; // Green for normal cycles 
+      return '#4caf4fcb';
     } else if (anomaly === true) {
-      return '#c62828e1'; // Red for anomaly detected 
+      return '#c62828e1';
     } else if (anomaly === null) {
-      return '#3333339f'; // Black for unknown status 
+      return '#3333339f';
     }
-    return 'grey'; // Fallback color if status is undefined/unexpected
+    return 'grey';
   };
 
-  // Fetch data whenever filters change
   useEffect(() => {
     dispatch(fetchAndProcessScatterMarkings({ machine, startDate, startTime, endDate, endTime, sequenceTool }));
   }, [dispatch, machine, startDate, startTime, endDate, endTime, sequenceTool]);
 
-  // D3.js rendering logic
   useEffect(() => {
     if (loading === 'pending' || error || scatterPoints.length === 0) {
-      // Clear previous plot if loading, error, or no data
       d3.select(svgRef.current).selectAll('*').remove();
       return;
     }
@@ -42,10 +39,8 @@ export const ScatterPlot = () => {
     const height = 400;
     const margin = { top: 20, right: 30, bottom: 60, left: 70 };
 
-    // Clear any existing elements before redrawing
     svg.selectAll('*').remove();
 
-    // Set SVG dimensions and viewbox for responsiveness
     svg.attr("width", width)
        .attr("height", height)
        .attr("viewBox", `0 0 ${width} ${height}`);
@@ -53,7 +48,6 @@ export const ScatterPlot = () => {
     const g = svg.append("g")
                  .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Define scales
     const xScale = d3.scaleTime()
                      .domain(d3.extent(scatterPoints, d => new Date(d.x)))
                      .range([0, width - margin.left - margin.right]);
@@ -62,7 +56,6 @@ export const ScatterPlot = () => {
                      .domain([0, d3.max(scatterPoints, d => d.y) + 50])
                      .range([height - margin.top - margin.bottom, 0]);
 
-    // Add X-axis
     g.append("g")
      .attr("transform", `translate(0, ${height - margin.top - margin.bottom})`)
      .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat("%b %d")))
@@ -73,7 +66,6 @@ export const ScatterPlot = () => {
      .attr("font-weight", "bold")
      .text("Time");
 
-    // Add Y-axis
     g.append("g")
      .call(d3.axisLeft(yScale))
      .append("text")
@@ -85,7 +77,6 @@ export const ScatterPlot = () => {
      .attr("text-anchor", "middle")
      .text("Distance");
 
-    // Add scatter points
     g.selectAll(".dot")
      .data(scatterPoints)
      .enter().append("circle")
@@ -93,7 +84,7 @@ export const ScatterPlot = () => {
      .attr("cx", d => xScale(new Date(d.x)))
      .attr("cy", d => yScale(d.y))
      .attr("r", 4)
-     .attr("fill", d => getColorForAnomaly(d.anomalyFlag)) // Use getColorForAnomaly based on anomalyFlag
+     .attr("fill", d => getColorForAnomaly(d.anomalyFlag))
      .on("mouseover", (event, d) => {
         d3.select(tooltipRef.current)
           .style("opacity", 0.9)
@@ -111,10 +102,23 @@ export const ScatterPlot = () => {
         d3.select(tooltipRef.current).style("opacity", 0);
       })
      .on("click", (event, d) => {
-        console.log("Clicked point:", d);
+        // Dispatch action to show Graph 2 and fetch its data
+        dispatch(showTimeSeriesGraph({
+          machineId: d.machineId,
+          cyclelogId: d.cycle_log_id,
+          signal: 'spindle_1_load', // Assuming this is the signal for Graph 2
+          anomalyFlag: d.anomalyFlag,
+          toolSequence: d.toolSequence,
+        }));
+        dispatch(fetchAndProcessTimeSeriesData({
+          machineId: d.machineId,
+          cyclelogId: d.cycle_log_id,
+          signal: 'spindle_1_load',
+          anomalyFlag: d.anomalyFlag,
+          toolSequence: d.toolSequence,
+        }));
      });
 
-    // Add min/max and threshold lines (no changes here from previous implementation)
     if (minMaxPoints.min !== null) {
       g.append("line")
        .attr("x1", 0)
@@ -159,20 +163,20 @@ export const ScatterPlot = () => {
          .attr("y1", yScale(minMaxPoints.threshold))
          .attr("x2", width - margin.left - margin.right)
          .attr("y2", yScale(minMaxPoints.threshold))
-         .attr("stroke", "#EF9A9A") // Red line (#EF9A9A) for threshold 
+         .attr("stroke", "#EF9A9A")
          .attr("stroke-dasharray", "5,5")
          .attr("class", "threshold-line");
-  
+
         g.append("text")
          .attr("x", width - margin.left - margin.right + 5)
          .attr("y", yScale(minMaxPoints.threshold))
          .attr("dy", "0.35em")
          .attr("text-anchor", "start")
-         .attr("fill", "#EF9A9A") // Apply threshold color to text as well
+         .attr("fill", "#EF9A9A")
          .text(`Threshold: ${minMaxPoints.threshold}`);
       }
 
-  }, [scatterPoints, minMaxPoints, loading, error]);
+  }, [scatterPoints, minMaxPoints, loading, error, dispatch]);
 
   return (
     <div className="p-4 bg-white rounded-lg shadow">

@@ -1,0 +1,125 @@
+import React, { useRef, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { hideTimeSeriesGraph } from '../../../features/timeSeriesGraph/timeSeriesGraphSlice';
+import * as d3 from 'd3';
+
+export const TimeSeriesGraph = () => {
+  const dispatch = useDispatch();
+  const { isVisible, actualSignalData, idealSignalData, loading, error, selectedCycleData } = useSelector((state) => state.timeSeriesGraph);
+  const svgRef = useRef();
+  
+
+  useEffect(() => {
+    if (loading === 'pending' || error || (actualSignalData.length === 0 && idealSignalData.length === 0)) {
+      d3.select(svgRef.current).selectAll('*').remove();
+      return;
+    }
+
+    const svg = d3.select(svgRef.current);
+    const width = 800;
+    const height = 250; // Adjust height for the lower graph
+    const margin = { top: 20, right: 30, bottom: 40, left: 70 };
+
+    svg.selectAll('*').remove();
+
+    svg.attr("width", width)
+       .attr("height", height)
+       .attr("viewBox", `0 0 ${width} ${height}`);
+
+    const g = svg.append("g")
+                 .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Combine data for domain calculation
+    const allXValues = [...actualSignalData.map(d => d.x), ...idealSignalData.map(d => d.x)];
+    const allYValues = [...actualSignalData.map(d => d.y), ...idealSignalData.map(d => d.y)];
+
+    const xScale = d3.scaleLinear()
+                     .domain(d3.extent(allXValues))
+                     .range([0, width - margin.left - margin.right]);
+
+    const yScale = d3.scaleLinear()
+                     .domain([0, d3.max(allYValues) + 20]) // Dynamic scaling
+                     .range([height - margin.top - margin.bottom, 0]);
+
+    // Add X-axis (Time in seconds)
+    g.append("g")
+     .attr("transform", `translate(0, ${height - margin.top - margin.bottom})`)
+     .call(d3.axisBottom(xScale).ticks(10))
+     .append("text")
+     .attr("y", 35)
+     .attr("x", (width - margin.left - margin.right) / 2)
+     .attr("fill", "black")
+     .attr("font-weight", "bold")
+     .text("Seconds");
+
+    // Add Y-axis (Signal intensity values)
+    g.append("g")
+     .call(d3.axisLeft(yScale))
+     .append("text")
+     .attr("transform", "rotate(-90)")
+     .attr("y", -50)
+     .attr("x", -(height - margin.top - margin.bottom) / 2)
+     .attr("fill", "black")
+     .attr("font-weight", "bold")
+     .attr("text-anchor", "middle")
+     .text("Signal Intensity");
+
+    // Define the line generator for actual signal (Dark Blue)
+    const lineActual = d3.line()
+      .x(d => xScale(d.x))
+      .y(d => yScale(d.y));
+
+    // Draw Actual Signal Line
+    g.append("path")
+      .datum(actualSignalData)
+      .attr("fill", "none")
+      .attr("stroke", "#0091EA") // Dark Blue
+      .attr("stroke-width", 2)
+      .attr("d", lineActual);
+
+    // Define the line generator for ideal signal (Light Blue)
+    const lineIdeal = d3.line()
+      .x(d => xScale(d.x))
+      .y(d => yScale(d.y));
+
+    // Draw Ideal Signal Line
+    g.append("path")
+      .datum(idealSignalData)
+      .attr("fill", "none")
+      .attr("stroke", "#B2EBF2") // Light Blue
+      .attr("stroke-width", 2)
+      .attr("d", lineIdeal);
+
+    // Implement zoom and pan functionality
+    const zoom = d3.zoom()
+      .scaleExtent([0.5, 20]) // Min and max zoom levels
+      .on("zoom", (event) => {
+        g.attr("transform", event.transform);
+      });
+
+    svg.call(zoom);
+
+  }, [actualSignalData, idealSignalData, loading, error, isVisible]);
+
+  if (!isVisible || (actualSignalData.length === 0 && idealSignalData.length === 0 && loading === 'idle')) {
+    return null;
+  }
+
+  return (
+    <div className="p-4 bg-white rounded-lg shadow mt-4">
+      <h3 className="text-lg font-bold mb-2">Time Series Analysis: {selectedCycleData?.signal}</h3>
+      {loading === 'pending' && <div className="text-gray-600">Loading time series data...</div>}
+      {error && <div className="text-red-600">Error: {error}</div>}
+      {!loading && !error && actualSignalData.length === 0 && idealSignalData.length === 0 && (
+        <p className="text-gray-700">No time series data available for the selected cycle.</p>
+      )}
+      <svg ref={svgRef}></svg>
+      <button
+        onClick={() => dispatch(hideTimeSeriesGraph())}
+        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
+        Hide Graph
+      </button>
+    </div>
+  );
+};

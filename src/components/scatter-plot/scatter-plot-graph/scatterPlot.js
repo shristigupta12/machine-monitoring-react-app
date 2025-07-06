@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAndProcessScatterMarkings } from '../../../features/scatterMarkings/scatterMarkingsSlice';
-import { showTimeSeriesGraph, fetchAndProcessTimeSeriesData } from '../../../features/timeSeriesGraph/timeSeriesGraphSlice'; // Import actions
+import { showTimeSeriesGraph, fetchAndProcessTimeSeriesData } from '../../../features/timeSeriesGraph/timeSeriesGraphSlice';
 import * as d3 from 'd3';
 import moment from 'moment';
 
@@ -104,14 +104,14 @@ export const ScatterPlot = () => {
      .on("click", (event, d) => {
         // Dispatch action to show Graph 2 and fetch its data
         dispatch(showTimeSeriesGraph({
-          machineId: d.machineId,
+          machineId: machine,
           cyclelogId: d.cycle_log_id,
           signal: 'spindle_1_load', // Assuming this is the signal for Graph 2
           anomalyFlag: d.anomalyFlag,
           toolSequence: d.toolSequence,
         }));
         dispatch(fetchAndProcessTimeSeriesData({
-          machineId: d.machineId,
+          machineId: machine,
           cyclelogId: d.cycle_log_id,
           signal: 'spindle_1_load',
           anomalyFlag: d.anomalyFlag,

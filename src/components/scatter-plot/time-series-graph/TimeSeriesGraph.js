@@ -7,6 +7,11 @@ export const TimeSeriesGraph = () => {
   const dispatch = useDispatch();
   const { isVisible, actualSignalData, idealSignalData, loading, error, selectedCycleData } = useSelector((state) => state.timeSeriesGraph);
   const svgRef = useRef();
+
+  useEffect(()=>{
+    console.log("actualSignalData: ", actualSignalData)
+    console.log("idealSignalData: ", idealSignalData)
+  }, [actualSignalData, idealSignalData])
   
 
   useEffect(() => {

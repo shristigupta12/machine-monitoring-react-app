@@ -18,9 +18,8 @@ export const fetchAndProcessTimeSeriesData = createAsyncThunk(
 
       // Fetch ideal signal data (light blue line) from changelog
       const changelogResponse = await fetchChangelog(machineId);
-      const currentChangeLog = changelogResponse.Result.find(
-        (log) => log.machine_id === machineId
-      );
+      const currentChangeLog = changelogResponse.Result[0]
+
 
       let idealSignalData = [];
       if (currentChangeLog && currentChangeLog.learned_parameters && currentChangeLog.learned_parameters[toolSequence]) {

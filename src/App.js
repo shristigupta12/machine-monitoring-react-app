@@ -2,6 +2,7 @@ import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import ScatterPlotPage from './pages/ScatterPlotPage';
 import ProcessFlowPage from './pages/ProcessFlowPage';
+import IndexPage from './pages/index';
 import { LayoutContainer } from './components/layout/layoutContainer';
 
 function App() {
@@ -10,7 +11,8 @@ function App() {
       <LayoutContainer>
         <main>
           <Routes>
-            <Route path="/" element={<ScatterPlotPage />} />
+            <Route path="/" element={<IndexPage />} />
+            <Route path="/machine-performance" element={<ScatterPlotPage />} />
             <Route path="/process-flow" element={<ProcessFlowPage />} />
           </Routes>
         </main>

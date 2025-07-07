@@ -8,12 +8,15 @@ function Select({ options = [], placeholder = "Select an option", onChange, valu
       value={value}
       {...props}
     >
-      <option value="">{placeholder}</option>
-      {options.map((option) => (
-        <option key={option.key} value={option.key}>
-          {option.value}
-        </option>
-      ))}
+      {options.length === 0 ? (
+        <option value="">{placeholder}</option>
+      ) : (
+        options.map((option) => (
+          <option key={option.key} value={option.key}>
+            {option.value}
+          </option>
+        ))
+      )}
     </Form.Select>
   );
 }

@@ -46,6 +46,13 @@ export const FilterHeading = () => {
     }
   }, [dispatch, machine]); // Re-fetch when machine changes
 
+  // Effect to auto-select first tool when tool sequences are loaded
+  useEffect(() => {
+    if (toolSequences.length > 0 && !sequenceTool) {
+      dispatch(setSequenceTool(toolSequences[0].key));
+    }
+  }, [toolSequences, sequenceTool, dispatch]);
+
   // Handle change for machine dropdown
   const handleMachineChange = (e) => {
     dispatch(setMachine(e.target.value));
@@ -75,15 +82,13 @@ export const FilterHeading = () => {
       <div className='flex gap-2 items-center '>
         <Select
           options={machineOptions}
-          placeholder="Select a machine"
           value={machine}
           onChange={handleMachineChange}
-          className="w-48" // Tailwind class for width
+          className="w-48" 
         />
 
         <Input
           type="date"
-          placeholder="Select start date"
           value={startDate}
           onChange={handleStartDateChange}
           min={minDate}
@@ -92,14 +97,12 @@ export const FilterHeading = () => {
         />
         <Input
           type="time"
-          placeholder="Select start time"
           value={startTime}
           onChange={(e) => dispatch(setStartTime(e.target.value))}
           className="w-36"
         />
         <Input
           type="date"
-          placeholder="Select end date"
           value={endDate}
           onChange={handleEndDateChange}
           min={minDate}
@@ -108,7 +111,6 @@ export const FilterHeading = () => {
         />
         <Input
           type="time"
-          placeholder="Select end time"
           value={endTime}
           onChange={(e) => dispatch(setEndTime(e.target.value))}
           className="w-36"
@@ -116,7 +118,7 @@ export const FilterHeading = () => {
 
         <Select
           options={toolSequences}
-          // placeholder={toolSequencesLoading ? "Loading tools..." : "Select tool"}
+          placeholder={toolSequencesLoading ? "Loading tools..." : "No tools available"}
           value={sequenceTool}
           onChange={handleSequenceToolChange}
           disabled={toolSequencesLoading!=='succeeded'} 

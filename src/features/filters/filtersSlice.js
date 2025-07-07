@@ -7,7 +7,6 @@ const initialState = {
     endDate: '2025-05-27',
     endTime: '23:59:59',
     sequenceTool: '101',
-    search: ''
 }
 
 const filtersSlice = createSlice({
@@ -31,10 +30,6 @@ const filtersSlice = createSlice({
       setSequenceTool: (state, action) => {
         state.sequenceTool = action.payload;
       },
-      setSearch: (state, action) => {
-        state.search = action.payload;
-      },
-      // You can add a reducer to reset all filters
       resetFilters: (state) => {
         Object.assign(state, initialState);
       },
@@ -48,7 +43,6 @@ const filtersSlice = createSlice({
     setEndDate,
     setEndTime,
     setSequenceTool,
-    setSearch,
     resetFilters,
   } = filtersSlice.actions;
   

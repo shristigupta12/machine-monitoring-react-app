@@ -10,7 +10,7 @@ import {
     setEndDate,
     setEndTime,
     setSequenceTool,
-    setSearch
+    resetFilters
   } from '../../features/filters/filtersSlice';
   
 
@@ -23,7 +23,6 @@ export const FilterHeading = () => {
     endDate,
     endTime,
     sequenceTool,
-    search
   } = useSelector((state) => state.filters); // Get filter values from Redux store
 
   const { toolSequences, loading: toolSequencesLoading, error: toolSequencesError } = useSelector((state) => state.toolSequences); // Get tool sequences and loading state
@@ -72,10 +71,7 @@ export const FilterHeading = () => {
     dispatch(setSequenceTool(e.target.value));
   };
 
-  // Handle change for search input
-  const handleSearchChange = (e) => {
-    dispatch(setSearch(e.target.value));
-  };
+ 
 
   return (
     <div>
@@ -126,12 +122,13 @@ export const FilterHeading = () => {
         />
         {toolSequencesError && <span className="text-red-500 text-sm">Error: {toolSequencesError}</span>}
 
-        <Input
-          placeholder="Search"
-          value={search}
-          onChange={handleSearchChange}
-          className="w-64"
-        />
+        <button className="bg-blue-500 text-white px-4 py-2 rounded-md">Search</button>
+        <button
+          className="bg-gray-300 text-black px-4 py-2 rounded-md ml-2"
+          onClick={() => dispatch(resetFilters())}
+        >
+          Reset
+        </button>
       </div>
 
     </div>

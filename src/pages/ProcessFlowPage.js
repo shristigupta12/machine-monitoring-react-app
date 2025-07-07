@@ -94,7 +94,7 @@ function ProcessFlowPage() {
   );
 
   return (
-    <div style={{ width: '100vw', height: '90vh' }}>
+    <div style={{ height: '90vh' }}>
       <h1>Process Flow Management</h1>
       <p>Interactive process flow graph for industrial machine monitoring.</p>
       <ReactFlow

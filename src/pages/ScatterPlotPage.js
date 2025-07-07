@@ -9,13 +9,13 @@ function ScatterPlotPage() {
   const isTimeSeriesGraphVisible = useSelector((state) => state.timeSeriesGraph.isVisible);
 
   return (
-    <div className="p-6">
+    <div >
       <h1 className="text-3xl font-bold mb-6">Scatter Data Visualization</h1>
       <FilterHeading />
       <div className="mt-8">
         <ScatterPlot />
       </div>
-      {isTimeSeriesGraphVisible && ( // Conditionally render TimeSeriesGraph
+      {isTimeSeriesGraphVisible && ( 
         <div className="mt-8">
           <TimeSeriesGraph />
         </div>

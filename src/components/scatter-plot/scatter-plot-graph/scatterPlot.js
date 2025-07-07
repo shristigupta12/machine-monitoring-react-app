@@ -4,6 +4,7 @@ import { fetchAndProcessScatterMarkings } from '../../../features/scatterMarking
 import { showTimeSeriesGraph, fetchAndProcessTimeSeriesData } from '../../../features/timeSeriesGraph/timeSeriesGraphSlice';
 import * as d3 from 'd3';
 import moment from 'moment';
+import { GraphLabelDescription } from './graphLabelDescription';
 
 export const ScatterPlot = () => {
   const dispatch = useDispatch();
@@ -47,6 +48,15 @@ export const ScatterPlot = () => {
 
     const g = svg.append("g")
                  .attr("transform", `translate(${margin.left},${margin.top})`);
+    
+    const zoom = d3.zoom()
+      .scaleExtent([1, 10])
+      .translateExtent([[0, 0], [width, height]])
+      .on("zoom", (event) => {
+        g.attr("transform", event.transform);
+    });
+    
+    svg.call(zoom);
 
     const xScale = d3.scaleTime()
                      .domain(d3.extent(scatterPoints, d => new Date(d.x)))
@@ -186,6 +196,7 @@ export const ScatterPlot = () => {
       {!loading && !error && scatterPoints.length === 0 && (
         <p className="text-gray-700">No scatter plot data available for the selected filters.</p>
       )}
+      <GraphLabelDescription />
       <svg ref={svgRef}></svg>
       <div
         ref={tooltipRef}

@@ -7,7 +7,7 @@ import ReactFlow, {
   addEdge,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import graphData from '../data/graphViz.json'; // Import your JSON data [cite: 689]
+import graphData from '../data/graphViz.json';
 
 const initialNodes = [];
 const initialEdges = [];

@@ -7,11 +7,7 @@ export const TimeSeriesGraph = () => {
   const dispatch = useDispatch();
   const { isVisible, actualSignalData, idealSignalData, loading, error, selectedCycleData } = useSelector((state) => state.timeSeriesGraph);
   const svgRef = useRef();
-
-  useEffect(()=>{
-    console.log("actualSignalData: ", actualSignalData)
-    console.log("idealSignalData: ", idealSignalData)
-  }, [actualSignalData, idealSignalData])
+  const tooltipRef = useRef();
   
 
   useEffect(() => {
@@ -95,6 +91,58 @@ export const TimeSeriesGraph = () => {
       .attr("stroke-width", 2)
       .attr("d", lineIdeal);
 
+    // Draw dots for Actual Signal
+    g.selectAll(".dot-actual")
+    .data(actualSignalData)
+    .enter()
+    .append("circle")
+    .attr("class", "dot-actual")
+    .attr("cx", d => xScale(d.x))
+    .attr("cy", d => yScale(d.y))
+    .attr("r", 3)
+    .attr("fill", "#0091EA")
+    .on("mouseover", (event, d) => {
+      const containerRect = svgRef.current.getBoundingClientRect();
+      d3.select(tooltipRef.current)
+        .style("opacity", 1)
+        .html(`
+          <strong>Type:</strong> Actual<br/>
+          <strong>X:</strong> ${d.x}<br/>
+          <strong>Y:</strong> ${d.y}
+        `)
+        .style("left", (event.clientX - containerRect.left + 10) + "px")
+        .style("top", (event.clientY - containerRect.top - 28) + "px");
+    })
+    .on("mouseout", () => {
+      d3.select(tooltipRef.current).style("opacity", 0);
+    });
+
+    // Draw dots for Ideal Signal
+    g.selectAll(".dot-ideal")
+    .data(idealSignalData)
+    .enter()
+    .append("circle")
+    .attr("class", "dot-ideal")
+    .attr("cx", d => xScale(d.x))
+    .attr("cy", d => yScale(d.y))
+    .attr("r", 3)
+    .attr("fill", "#B2EBF2")
+    .on("mouseover", (event, d) => {
+      const containerRect = svgRef.current.getBoundingClientRect();
+      d3.select(tooltipRef.current)
+        .style("opacity", 1)
+        .html(`
+          <strong>Type:</strong> Ideal<br/>
+          <strong>X:</strong> ${d.x}<br/>
+          <strong>Y:</strong> ${d.y}
+        `)
+        .style("left", (event.clientX - containerRect.left + 10) + "px")
+        .style("top", (event.clientY - containerRect.top - 28) + "px");
+    })
+    .on("mouseout", () => {
+      d3.select(tooltipRef.current).style("opacity", 0);
+    });
+
     // Implement zoom and pan functionality
     const zoom = d3.zoom()
       .scaleExtent([0.5, 20]) // Min and max zoom levels
@@ -111,7 +159,7 @@ export const TimeSeriesGraph = () => {
   }
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow mt-4">
+    <div className="p-4 bg-white rounded-lg shadow mt-4" style={{ position: 'relative' }}>
       <h3 className="text-lg font-bold mb-2">Time Series Analysis: {selectedCycleData?.signal}</h3>
       {loading === 'pending' && <div className="text-gray-600">Loading time series data...</div>}
       {error && <div className="text-red-600">Error: {error}</div>}
@@ -119,6 +167,11 @@ export const TimeSeriesGraph = () => {
         <p className="text-gray-700">No time series data available for the selected cycle.</p>
       )}
       <svg ref={svgRef}></svg>
+      <div
+        ref={tooltipRef}
+        className="absolute bg-gray-800 text-white p-2 rounded-md pointer-events-none text-xs"
+        style={{ opacity: 1, position: 'absolute', zIndex: 9999 }}
+      ></div>
       <button
         onClick={() => dispatch(hideTimeSeriesGraph())}
         className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"

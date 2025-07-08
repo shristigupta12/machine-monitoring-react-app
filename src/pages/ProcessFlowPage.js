@@ -48,9 +48,9 @@ function ProcessFlowPage() {
       const newNodes = graphData.prod_machine_map.map((nodeData, index) => {
         let nodeColor = '#FFFFFF'; // Default white
         if (graphData.not_allowed_list.includes(nodeData.machine_id)) {
-          nodeColor = '#dc3545'; // Red for not_allowed_list
+          nodeColor = '#ef4444'; // Red for not_allowed_list
         } else if (graphData.bypass_list.includes(nodeData.machine_id)) {
-          nodeColor = '#007bff'; // Blue for bypass_list
+          nodeColor = '#3b82f6'; // Blue for bypass_list
         }
 
         return {
@@ -70,11 +70,14 @@ function ProcessFlowPage() {
           },
           style: {
             backgroundColor: nodeColor,
-            border: '1px solid #333',
-            padding: 10,
-            borderRadius: 5,
-            width: 180,
+            border: '2px solid #e2e8f0',
+            padding: 12,
+            borderRadius: 8,
+            width: 200,
             textAlign: 'center',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+            fontSize: '12px',
+            fontWeight: '500',
           },
         };
       });
@@ -87,6 +90,7 @@ function ProcessFlowPage() {
             source: String(inputStationId),
             target: String(nodeData.id),
             animated: true,
+            style: { stroke: '#3b82f6', strokeWidth: 2 },
           });
         });
       });
@@ -192,8 +196,8 @@ function ProcessFlowPage() {
           name: fullNodeData.name,
           id: fullNodeData.id,
           station_number: fullNodeData.station_number,
-          isBypassed: isNodeBypassed ? 'Yes' : 'No', // Display as 'Yes'/'No'
-          isNotAllowed: isNodeNotAllowed ? 'Yes' : 'No', // Display as 'Yes'/'No'
+          isBypassed: isNodeBypassed ? 'Yes' : 'No',
+          isNotAllowed: isNodeNotAllowed ? 'Yes' : 'No',
         });
       }
     }
@@ -205,32 +209,43 @@ function ProcessFlowPage() {
   }, []);
 
   if (!graphData) {
-    return <div className="flex items-center justify-center h-64">Loading process flow data...</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading process flow data...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="w-full h-screen flex flex-col">
-      <div className="p-4 sm:p-6">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Process Flow Management</h1>
-        <p className="text-sm sm:text-base text-gray-600 mb-4">Interactive process flow graph for industrial machine monitoring.</p>
+      <div className="p-6 bg-white shadow-soft">
+        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+          Process Flow Management
+        </h1>
+        <p className="text-slate-600">
+          Interactive process flow graph for industrial machine monitoring and optimization.
+        </p>
       </div>
 
       <div className="flex flex-col lg:flex-row flex-1 min-h-0">
         {/* Form Panel */}
-        <div className="lg:w-80 p-4 sm:p-6 bg-gray-50 border-b lg:border-b-0 lg:border-r border-gray-200">
-          <h2 className="text-lg font-semibold mb-4">Modify Node</h2>
+        <div className="lg:w-80 p-6 bg-white shadow-soft border-r border-slate-200">
+          <h2 className="text-xl font-semibold mb-6 text-slate-800">Modify Node</h2>
           
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Select Node ID:
               </label>
               <select 
                 value={selectedNodeId} 
                 onChange={(e) => setSelectedNodeId(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="form-select w-full"
               >
-                <option value="">--Select--</option>
+                <option value="">--Select a node--</option>
                 {graphData.prod_machine_map.map(node => (
                   <option key={node.id} value={node.id}>{node.id} - {node.name}</option>
                 ))}
@@ -238,7 +253,7 @@ function ProcessFlowPage() {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 New Node Name:
               </label>
               <input
@@ -246,12 +261,12 @@ function ProcessFlowPage() {
                 value={newNodeName}
                 onChange={(e) => setNewNodeName(e.target.value)}
                 placeholder="Enter new name"
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="form-control w-full"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 New Station Number:
               </label>
               <input
@@ -259,45 +274,46 @@ function ProcessFlowPage() {
                 value={newNodeStationNumber}
                 onChange={(e) => setNewNodeStationNumber(e.target.value)}
                 placeholder="Enter new station number"
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="form-control w-full"
               />
             </div>
             
-            <div className="flex items-center space-x-4">
-              <label className="flex items-center">
+            <div className="space-y-4">
+              <label className="flex items-center p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
                 <input
                   type="checkbox"
                   checked={isBypassed}
                   onChange={(e) => setIsBypassed(e.target.checked)}
-                  className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
                 />
-                <span className="text-sm font-medium text-gray-700">Is Bypassed</span>
+                <span className="text-sm font-medium text-slate-700">Is Bypassed</span>
               </label>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <label className="flex items-center">
+              
+              <label className="flex items-center p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
                 <input
                   type="checkbox"
                   checked={isNotAllowed}
                   onChange={(e) => setIsNotAllowed(e.target.checked)}
-                  className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="mr-3 h-4 w-4 text-red-600 focus:ring-red-500 border-slate-300 rounded"
                 />
-                <span className="text-sm font-medium text-gray-700">Is Not Allowed</span>
+                <span className="text-sm font-medium text-slate-700">Is Not Allowed</span>
               </label>
             </div>
             
             <button 
               onClick={updateNodeProperties}
-              className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
+              className="btn-primary w-full flex items-center justify-center gap-2"
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
               Update Node
             </button>
           </div>
         </div>
 
         {/* ReactFlow Container */}
-        <div className="flex-1 relative min-h-0">
+        <div className="flex-1 relative min-h-0 bg-gradient-to-br from-slate-50 to-blue-50">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -310,20 +326,39 @@ function ProcessFlowPage() {
             fitView
             className="w-full h-full"
           >
-            <Controls />
-            <Background variant="dots" gap={12} size={1} />
+            <Controls className="shadow-soft" />
+            <Background variant="dots" gap={20} size={1} color="#cbd5e1" />
           </ReactFlow>
 
           {/* Node Details Panel for Hover */}
           {hoveredNodeDetails && (
-            <div className="absolute top-4 right-4 bg-white bg-opacity-95 border border-gray-200 rounded-lg p-4 shadow-lg z-50 max-w-xs">
-              <h3 className="font-semibold text-sm mb-2">Node Details (Hover)</h3>
-              <div className="space-y-1 text-xs">
-                <p><strong>Name:</strong> {hoveredNodeDetails.name}</p>
-                <p><strong>ID:</strong> {hoveredNodeDetails.id}</p>
-                <p><strong>Station No:</strong> {hoveredNodeDetails.station_number}</p>
-                <p><strong>Is Bypassed:</strong> {hoveredNodeDetails.isBypassed}</p>
-                <p><strong>Is Not Allowed:</strong> {hoveredNodeDetails.isNotAllowed}</p>
+            <div className="absolute top-6 right-6 bg-white/95 backdrop-blur-sm border border-slate-200 rounded-xl p-4 shadow-strong z-50 max-w-xs">
+              <h3 className="font-semibold text-sm mb-3 text-slate-800">Node Details</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Name:</span>
+                  <span className="font-medium text-slate-800">{hoveredNodeDetails.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">ID:</span>
+                  <span className="font-medium text-slate-800">{hoveredNodeDetails.id}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Station No:</span>
+                  <span className="font-medium text-slate-800">{hoveredNodeDetails.station_number}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Bypassed:</span>
+                  <span className={`font-medium ${hoveredNodeDetails.isBypassed === 'Yes' ? 'text-blue-600' : 'text-slate-600'}`}>
+                    {hoveredNodeDetails.isBypassed}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Not Allowed:</span>
+                  <span className={`font-medium ${hoveredNodeDetails.isNotAllowed === 'Yes' ? 'text-red-600' : 'text-slate-600'}`}>
+                    {hoveredNodeDetails.isNotAllowed}
+                  </span>
+                </div>
               </div>
             </div>
           )}

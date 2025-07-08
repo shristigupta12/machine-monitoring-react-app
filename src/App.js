@@ -7,7 +7,7 @@ import { LayoutContainer } from './components/layout/layoutContainer';
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <Router>
         <LayoutContainer>
           <main className="w-full">

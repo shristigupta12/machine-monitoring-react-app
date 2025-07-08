@@ -1,11 +1,12 @@
 import Form from 'react-bootstrap/Form';
 
-function Select({ options = [], placeholder = "Select an option", onChange, value, ...props }) {
+function Select({ options = [], placeholder = "Select an option", onChange, value, className = "", ...props }) {
   return (
     <Form.Select 
       aria-label={placeholder}
       onChange={onChange}
       value={value}
+      className={`form-select ${className}`}
       {...props}
     >
       {options.length === 0 ? (

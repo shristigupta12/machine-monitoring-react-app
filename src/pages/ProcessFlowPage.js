@@ -205,108 +205,129 @@ function ProcessFlowPage() {
   }, []);
 
   if (!graphData) {
-    return <div>Loading process flow data...</div>;
+    return <div className="flex items-center justify-center h-64">Loading process flow data...</div>;
   }
 
   return (
-    <div style={{ height: '90vh', display: 'flex', flexDirection: 'column' }}>
-      <h1>Process Flow Management</h1>
-      <p>Interactive process flow graph for industrial machine monitoring.</p>
-
-      <div style={{ padding: '10px', border: '1px solid #ccc', marginBottom: '10px' }}>
-        <h2>Modify Node</h2>
-        <label>
-          Select Node ID:
-          <select value={selectedNodeId} onChange={(e) => setSelectedNodeId(e.target.value)}>
-            <option value="">--Select--</option>
-            {graphData.prod_machine_map.map(node => (
-              <option key={node.id} value={node.id}>{node.id} - {node.name}</option>
-            ))}
-          </select>
-        </label>
-        <br />
-        <label>
-          New Node Name:
-          <input
-            type="text"
-            value={newNodeName}
-            onChange={(e) => setNewNodeName(e.target.value)}
-            placeholder="Enter new name"
-          />
-        </label>
-        <br />
-        <label>
-          New Station Number:
-          <input
-            type="text"
-            value={newNodeStationNumber}
-            onChange={(e) => setNewNodeStationNumber(e.target.value)}
-            placeholder="Enter new station number"
-          />
-        </label>
-        <br />
-        <label>
-          Is Bypassed:
-          <input
-            type="checkbox"
-            checked={isBypassed}
-            onChange={(e) => setIsBypassed(e.target.checked)}
-          />
-        </label>
-        <br />
-        <label>
-          Is Not Allowed:
-          <input
-            type="checkbox"
-            checked={isNotAllowed}
-            onChange={(e) => setIsNotAllowed(e.target.checked)}
-          />
-        </label>
-        <br />
-        <button onClick={updateNodeProperties}>Update Node</button>
+    <div className="w-full h-screen flex flex-col">
+      <div className="p-4 sm:p-6">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Process Flow Management</h1>
+        <p className="text-sm sm:text-base text-gray-600 mb-4">Interactive process flow graph for industrial machine monitoring.</p>
       </div>
 
-      <div style={{ flexGrow: 1, position: 'relative' }}>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onNodeClick={onNodeClick}
-          onNodeMouseEnter={onNodeMouseEnter}
-          onNodeMouseLeave={onNodeMouseLeave}
-          fitView
-        >
-          <Controls />
-          <Background variant="dots" gap={12} size={1} />
-        </ReactFlow>
-
-        {/* Node Details Panel for Hover */}
-        {hoveredNodeDetails && (
-          <div style={{
-            position: 'absolute',
-            top: '10px',
-            right: '10px',
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            border: '1px solid #ccc',
-            padding: '10px',
-            borderRadius: '5px',
-            zIndex: 1000,
-            maxHeight: '80%',
-            overflowY: 'auto',
-            maxWidth: '300px',
-            fontSize: '0.9em',
-            boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-          }}>
-            <h3>Node Details (Hover)</h3>
-            <p style={{ margin: '5px 0' }}><strong>Name:</strong> {hoveredNodeDetails.name}</p>
-            <p style={{ margin: '5px 0' }}><strong>ID:</strong> {hoveredNodeDetails.id}</p>
-            <p style={{ margin: '5px 0' }}><strong>Station No:</strong> {hoveredNodeDetails.station_number}</p>
-            <p style={{ margin: '5px 0' }}><strong>Is Bypassed:</strong> {hoveredNodeDetails.isBypassed}</p>
-            <p style={{ margin: '5px 0' }}><strong>Is Not Allowed:</strong> {hoveredNodeDetails.isNotAllowed}</p>
+      <div className="flex flex-col lg:flex-row flex-1 min-h-0">
+        {/* Form Panel */}
+        <div className="lg:w-80 p-4 sm:p-6 bg-gray-50 border-b lg:border-b-0 lg:border-r border-gray-200">
+          <h2 className="text-lg font-semibold mb-4">Modify Node</h2>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Select Node ID:
+              </label>
+              <select 
+                value={selectedNodeId} 
+                onChange={(e) => setSelectedNodeId(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">--Select--</option>
+                {graphData.prod_machine_map.map(node => (
+                  <option key={node.id} value={node.id}>{node.id} - {node.name}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                New Node Name:
+              </label>
+              <input
+                type="text"
+                value={newNodeName}
+                onChange={(e) => setNewNodeName(e.target.value)}
+                placeholder="Enter new name"
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                New Station Number:
+              </label>
+              <input
+                type="text"
+                value={newNodeStationNumber}
+                onChange={(e) => setNewNodeStationNumber(e.target.value)}
+                placeholder="Enter new station number"
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={isBypassed}
+                  onChange={(e) => setIsBypassed(e.target.checked)}
+                  className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <span className="text-sm font-medium text-gray-700">Is Bypassed</span>
+              </label>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={isNotAllowed}
+                  onChange={(e) => setIsNotAllowed(e.target.checked)}
+                  className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <span className="text-sm font-medium text-gray-700">Is Not Allowed</span>
+              </label>
+            </div>
+            
+            <button 
+              onClick={updateNodeProperties}
+              className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
+            >
+              Update Node
+            </button>
           </div>
-        )}
+        </div>
+
+        {/* ReactFlow Container */}
+        <div className="flex-1 relative min-h-0">
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onNodeClick={onNodeClick}
+            onNodeMouseEnter={onNodeMouseEnter}
+            onNodeMouseLeave={onNodeMouseLeave}
+            fitView
+            className="w-full h-full"
+          >
+            <Controls />
+            <Background variant="dots" gap={12} size={1} />
+          </ReactFlow>
+
+          {/* Node Details Panel for Hover */}
+          {hoveredNodeDetails && (
+            <div className="absolute top-4 right-4 bg-white bg-opacity-95 border border-gray-200 rounded-lg p-4 shadow-lg z-50 max-w-xs">
+              <h3 className="font-semibold text-sm mb-2">Node Details (Hover)</h3>
+              <div className="space-y-1 text-xs">
+                <p><strong>Name:</strong> {hoveredNodeDetails.name}</p>
+                <p><strong>ID:</strong> {hoveredNodeDetails.id}</p>
+                <p><strong>Station No:</strong> {hoveredNodeDetails.station_number}</p>
+                <p><strong>Is Bypassed:</strong> {hoveredNodeDetails.isBypassed}</p>
+                <p><strong>Is Not Allowed:</strong> {hoveredNodeDetails.isNotAllowed}</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

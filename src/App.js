@@ -7,17 +7,19 @@ import { LayoutContainer } from './components/layout/layoutContainer';
 
 function App() {
   return (
-    <Router>
-      <LayoutContainer>
-        <main>
-          <Routes>
-            <Route path="/" element={<IndexPage />} />
-            <Route path="/machine-performance" element={<ScatterPlotPage />} />
-            <Route path="/process-flow" element={<ProcessFlowPage />} />
-          </Routes>
-        </main>
+    <div className="min-h-screen bg-gray-50">
+      <Router>
+        <LayoutContainer>
+          <main className="w-full">
+            <Routes>
+              <Route path="/" element={<IndexPage />} />
+              <Route path="/machine-performance" element={<ScatterPlotPage />} />
+              <Route path="/process-flow" element={<ProcessFlowPage />} />
+            </Routes>
+          </main>
         </LayoutContainer>
-    </Router>
+      </Router>
+    </div>
   );
 }
 

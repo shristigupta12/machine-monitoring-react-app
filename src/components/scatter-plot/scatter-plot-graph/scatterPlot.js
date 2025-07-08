@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAndProcessScatterMarkings } from '../../../features/scatterMarkings/scatterMarkingsSlice';
 import { showTimeSeriesGraph, fetchAndProcessTimeSeriesData } from '../../../features/timeSeriesGraph/timeSeriesGraphSlice';
@@ -13,6 +13,8 @@ export const ScatterPlot = () => {
 
   const svgRef = useRef();
   const tooltipRef = useRef();
+  const containerRef = useRef();
+  const [dimensions, setDimensions] = useState({ width: 800, height: 400 });
 
   const getColorForAnomaly = (anomaly) => {
     if (anomaly === false) {
@@ -25,6 +27,22 @@ export const ScatterPlot = () => {
     return 'grey';
   };
 
+  // Handle responsive sizing
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        const width = Math.min(containerWidth - 32, 800); // Account for padding
+        const height = Math.max(300, width * 0.5); // Maintain aspect ratio
+        setDimensions({ width, height });
+      }
+    };
+
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
+
   useEffect(() => {
     dispatch(fetchAndProcessScatterMarkings({ machine, startDate, startTime, endDate, endTime, sequenceTool }));
   }, [dispatch, machine, startDate, startTime, endDate, endTime, sequenceTool]);
@@ -36,9 +54,13 @@ export const ScatterPlot = () => {
     }
 
     const svg = d3.select(svgRef.current);
-    const width = 800;
-    const height = 400;
-    const margin = { top: 20, right: 30, bottom: 60, left: 70 };
+    const { width, height } = dimensions;
+    const margin = { 
+      top: 20, 
+      right: 30, 
+      bottom: 60, 
+      left: width < 600 ? 50 : 70 
+    };
 
     svg.selectAll('*').remove();
 
@@ -66,26 +88,38 @@ export const ScatterPlot = () => {
                      .domain([0, d3.max(scatterPoints, d => d.y) + 50])
                      .range([height - margin.top - margin.bottom, 0]);
 
+    // Responsive axis formatting
+    const xAxis = d3.axisBottom(xScale);
+    if (width < 600) {
+      xAxis.tickFormat(d3.timeFormat("%m/%d"));
+    } else {
+      xAxis.tickFormat(d3.timeFormat("%b %d"));
+    }
+
     g.append("g")
      .attr("transform", `translate(0, ${height - margin.top - margin.bottom})`)
-     .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat("%b %d")))
+     .call(xAxis)
      .append("text")
      .attr("y", 50)
      .attr("x", (width - margin.left - margin.right) / 2)
      .attr("fill", "black")
      .attr("font-weight", "bold")
+     .attr("font-size", width < 600 ? "12px" : "14px")
      .text("Time");
 
     g.append("g")
      .call(d3.axisLeft(yScale))
      .append("text")
      .attr("transform", "rotate(-90)")
-     .attr("y", -50)
+     .attr("y", -40)
      .attr("x", -(height - margin.top - margin.bottom) / 2)
      .attr("fill", "black")
      .attr("font-weight", "bold")
      .attr("text-anchor", "middle")
+     .attr("font-size", width < 600 ? "12px" : "14px")
      .text("Distance");
+
+    const dotRadius = width < 600 ? 3 : 4;
 
     g.selectAll(".dot")
      .data(scatterPoints)
@@ -93,7 +127,7 @@ export const ScatterPlot = () => {
      .attr("class", "dot")
      .attr("cx", d => xScale(new Date(d.x)))
      .attr("cy", d => yScale(d.y))
-     .attr("r", 4)
+     .attr("r", dotRadius)
      .attr("fill", d => getColorForAnomaly(d.anomalyFlag))
      .on("mouseover", (event, d) => {
         d3.select(tooltipRef.current)
@@ -145,6 +179,7 @@ export const ScatterPlot = () => {
        .attr("dy", "0.35em")
        .attr("text-anchor", "start")
        .attr("fill", "orange")
+       .attr("font-size", width < 600 ? "10px" : "12px")
        .text(`Min: ${minMaxPoints.min}`);
     }
 
@@ -164,6 +199,7 @@ export const ScatterPlot = () => {
        .attr("dy", "0.35em")
        .attr("text-anchor", "start")
        .attr("fill", "orange")
+       .attr("font-size", width < 600 ? "10px" : "12px")
        .text(`Max: ${minMaxPoints.max}`);
     }
 
@@ -183,25 +219,28 @@ export const ScatterPlot = () => {
          .attr("dy", "0.35em")
          .attr("text-anchor", "start")
          .attr("fill", "#EF9A9A")
+         .attr("font-size", width < 600 ? "10px" : "12px")
          .text(`Threshold: ${minMaxPoints.threshold}`);
       }
 
-  }, [scatterPoints, minMaxPoints, loading, error, dispatch]);
+  }, [scatterPoints, minMaxPoints, loading, error, dispatch, dimensions]);
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow">
-      <h2 className="text-xl font-bold mb-4">Distance vs Time Scatter Plot</h2>
+    <div ref={containerRef} className="w-full p-4 bg-white rounded-lg shadow">
+      <h2 className="text-lg sm:text-xl font-bold mb-4">Distance vs Time Scatter Plot</h2>
       {loading === 'pending' && <div className="text-gray-600">Loading scatter plot data...</div>}
       {error && <div className="text-red-600">Error: {error}</div>}
       {!loading && !error && scatterPoints.length === 0 && (
         <p className="text-gray-700">No scatter plot data available for the selected filters.</p>
       )}
       <GraphLabelDescription />
-      <svg ref={svgRef}></svg>
+      <div className="w-full overflow-x-auto">
+        <svg ref={svgRef} className="w-full max-w-full"></svg>
+      </div>
       <div
         ref={tooltipRef}
-        className="absolute bg-gray-800 text-white p-2 rounded-md pointer-events-none"
-        style={{ opacity: 0, position: 'absolute' }}
+        className="absolute bg-gray-800 text-white p-2 rounded-md pointer-events-none text-sm"
+        style={{ opacity: 0, position: 'absolute', zIndex: 1000 }}
       ></div>
     </div>
   );

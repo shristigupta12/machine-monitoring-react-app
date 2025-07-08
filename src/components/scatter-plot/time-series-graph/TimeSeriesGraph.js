@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { hideTimeSeriesGraph } from '../../../features/timeSeriesGraph/timeSeriesGraphSlice';
 import * as d3 from 'd3';
@@ -8,7 +8,24 @@ export const TimeSeriesGraph = () => {
   const { isVisible, actualSignalData, idealSignalData, loading, error, selectedCycleData } = useSelector((state) => state.timeSeriesGraph);
   const svgRef = useRef();
   const tooltipRef = useRef();
-  
+  const containerRef = useRef();
+  const [dimensions, setDimensions] = useState({ width: 800, height: 250 });
+
+  // Handle responsive sizing
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        const width = Math.min(containerWidth - 32, 800); // Account for padding
+        const height = Math.max(200, width * 0.3); // Maintain aspect ratio
+        setDimensions({ width, height });
+      }
+    };
+
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
 
   useEffect(() => {
     if (loading === 'pending' || error || (actualSignalData.length === 0 && idealSignalData.length === 0)) {
@@ -17,9 +34,13 @@ export const TimeSeriesGraph = () => {
     }
 
     const svg = d3.select(svgRef.current);
-    const width = 800;
-    const height = 250; // Adjust height for the lower graph
-    const margin = { top: 20, right: 30, bottom: 40, left: 70 };
+    const { width, height } = dimensions;
+    const margin = { 
+      top: 20, 
+      right: 30, 
+      bottom: 40, 
+      left: width < 600 ? 50 : 70 
+    };
 
     svg.selectAll('*').remove();
 
@@ -45,12 +66,13 @@ export const TimeSeriesGraph = () => {
     // Add X-axis (Time in seconds)
     g.append("g")
      .attr("transform", `translate(0, ${height - margin.top - margin.bottom})`)
-     .call(d3.axisBottom(xScale).ticks(10))
+     .call(d3.axisBottom(xScale).ticks(width < 600 ? 5 : 10))
      .append("text")
      .attr("y", 35)
      .attr("x", (width - margin.left - margin.right) / 2)
      .attr("fill", "black")
      .attr("font-weight", "bold")
+     .attr("font-size", width < 600 ? "12px" : "14px")
      .text("Seconds");
 
     // Add Y-axis (Signal intensity values)
@@ -58,11 +80,12 @@ export const TimeSeriesGraph = () => {
      .call(d3.axisLeft(yScale))
      .append("text")
      .attr("transform", "rotate(-90)")
-     .attr("y", -50)
+     .attr("y", -40)
      .attr("x", -(height - margin.top - margin.bottom) / 2)
      .attr("fill", "black")
      .attr("font-weight", "bold")
      .attr("text-anchor", "middle")
+     .attr("font-size", width < 600 ? "12px" : "14px")
      .text("Signal Intensity");
 
     // Define the line generator for actual signal (Dark Blue)
@@ -75,7 +98,7 @@ export const TimeSeriesGraph = () => {
       .datum(actualSignalData)
       .attr("fill", "none")
       .attr("stroke", "#0091EA") // Dark Blue
-      .attr("stroke-width", 2)
+      .attr("stroke-width", width < 600 ? 1.5 : 2)
       .attr("d", lineActual);
 
     // Define the line generator for ideal signal (Light Blue)
@@ -88,8 +111,10 @@ export const TimeSeriesGraph = () => {
       .datum(idealSignalData)
       .attr("fill", "none")
       .attr("stroke", "#B2EBF2") // Light Blue
-      .attr("stroke-width", 2)
+      .attr("stroke-width", width < 600 ? 1.5 : 2)
       .attr("d", lineIdeal);
+
+    const dotRadius = width < 600 ? 2 : 3;
 
     // Draw dots for Actual Signal
     g.selectAll(".dot-actual")
@@ -99,7 +124,7 @@ export const TimeSeriesGraph = () => {
     .attr("class", "dot-actual")
     .attr("cx", d => xScale(d.x))
     .attr("cy", d => yScale(d.y))
-    .attr("r", 3)
+    .attr("r", dotRadius)
     .attr("fill", "#0091EA")
     .on("mouseover", (event, d) => {
       const containerRect = svgRef.current.getBoundingClientRect();
@@ -125,7 +150,7 @@ export const TimeSeriesGraph = () => {
     .attr("class", "dot-ideal")
     .attr("cx", d => xScale(d.x))
     .attr("cy", d => yScale(d.y))
-    .attr("r", 3)
+    .attr("r", dotRadius)
     .attr("fill", "#B2EBF2")
     .on("mouseover", (event, d) => {
       const containerRect = svgRef.current.getBoundingClientRect();
@@ -152,21 +177,23 @@ export const TimeSeriesGraph = () => {
 
     svg.call(zoom);
 
-  }, [actualSignalData, idealSignalData, loading, error, isVisible]);
+  }, [actualSignalData, idealSignalData, loading, error, isVisible, dimensions]);
 
   if (!isVisible || (actualSignalData.length === 0 && idealSignalData.length === 0 && loading === 'idle')) {
     return null;
   }
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow mt-4" style={{ position: 'relative' }}>
-      <h3 className="text-lg font-bold mb-2">Time Series Analysis: {selectedCycleData?.signal}</h3>
+    <div ref={containerRef} className="w-full p-4 bg-white rounded-lg shadow mt-4" style={{ position: 'relative' }}>
+      <h3 className="text-base sm:text-lg font-bold mb-2">Time Series Analysis: {selectedCycleData?.signal}</h3>
       {loading === 'pending' && <div className="text-gray-600">Loading time series data...</div>}
       {error && <div className="text-red-600">Error: {error}</div>}
       {!loading && !error && actualSignalData.length === 0 && idealSignalData.length === 0 && (
         <p className="text-gray-700">No time series data available for the selected cycle.</p>
       )}
-      <svg ref={svgRef}></svg>
+      <div className="w-full overflow-x-auto">
+        <svg ref={svgRef} className="w-full max-w-full"></svg>
+      </div>
       <div
         ref={tooltipRef}
         className="absolute bg-gray-800 text-white p-2 rounded-md pointer-events-none text-xs"
@@ -174,7 +201,7 @@ export const TimeSeriesGraph = () => {
       ></div>
       <button
         onClick={() => dispatch(hideTimeSeriesGraph())}
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors w-full sm:w-auto"
       >
         Hide Graph
       </button>

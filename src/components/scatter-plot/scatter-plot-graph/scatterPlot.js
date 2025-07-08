@@ -8,10 +8,10 @@ import moment from 'moment';
 import { GraphLabelDescription } from './graphLabelDescription';
 import { UnprocessedToolList } from './unprocessedToolList';
 
-export const ScatterPlot = () => {
+export const ScatterPlot = ({ graphId = 'graph1' }) => {
   const dispatch = useDispatch();
-  const { machine, startDate, startTime, endDate, endTime, sequenceTool } = useSelector((state) => state.filters);
-  const { scatterPoints, minMaxPoints, loading, error } = useSelector((state) => state.scatterMarkings); // minMaxPoints is now available from scatterMarkingsSlice
+  const { machine, startDate, startTime, endDate, endTime, sequenceTool } = useSelector((state) => state.filters[graphId]);
+  const { scatterPoints, minMaxPoints, loading, error } = useSelector((state) => state.scatterMarkings[graphId]);
 
   const svgRef = useRef();
   const tooltipRef = useRef();
@@ -46,11 +46,13 @@ export const ScatterPlot = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(fetchAndProcessScatterMarkings({ machine, startDate, startTime, endDate, endTime, sequenceTool }));
-  }, [dispatch, machine, startDate, startTime, endDate, endTime, sequenceTool]);
+    dispatch(fetchAndProcessScatterMarkings({ graphId, machine, startDate, startTime, endDate, endTime, sequenceTool }));
+  }, [dispatch, graphId, machine, startDate, startTime, endDate, endTime, sequenceTool]);
 
   useEffect(() => {
-    if (loading === 'pending' || error || scatterPoints.length === 0) {
+    // --- THIS IS THE CRITICAL PART FOR THE TypeError ---
+    // Ensure scatterPoints is a valid array before proceeding with D3 operations
+    if (loading === 'pending' || error || !scatterPoints || scatterPoints.length === 0) {
       d3.select(svgRef.current).selectAll('*').remove();
       return;
     }
@@ -82,12 +84,13 @@ export const ScatterPlot = () => {
     
     svg.call(zoom);
 
+    // Use a conditional domain for xScale and yScale to handle empty scatterPoints safely
     const xScale = d3.scaleTime()
-                     .domain(d3.extent(scatterPoints, d => new Date(d.x)))
+                     .domain(scatterPoints.length > 0 ? d3.extent(scatterPoints, d => new Date(d.x)) : [new Date(), new Date()]) // Default domain for empty array
                      .range([0, width - margin.left - margin.right]);
 
     const yScale = d3.scaleLinear()
-                     .domain([0, d3.max(scatterPoints, d => d.y) + 50])
+                     .domain(scatterPoints.length > 0 ? [0, d3.max(scatterPoints, d => d.y) + 50] : [0, 100]) // Default domain for empty array
                      .range([height - margin.top - margin.bottom, 0]);
 
     // Responsive axis formatting
@@ -148,20 +151,20 @@ export const ScatterPlot = () => {
         d3.select(tooltipRef.current).style("opacity", 0);
       })
      .on("click", (event, d) => {
-        // Removed the conditional check for d.anomalyFlag === null
-        // Now, clicking any point (red, green, or black) will show the time series graph.
         dispatch(showTimeSeriesGraph({
+          graphId,
           machineId: machine,
           cyclelogId: d.cycle_log_id,
-          signal: 'spindle_1_load', // Assuming this is the signal for Graph 2
+          signal: 'spindle_1_load',
           anomalyFlag: d.anomalyFlag,
           toolSequence: d.toolSequence,
-          actualDistance: d.y, // Pass the actual distance
-          minPoints: minMaxPoints.min, // Pass min_points from scatterMarkings state
-          maxPoints: minMaxPoints.max, // Pass max_points from scatterMarkings state
-          threshold: minMaxPoints.threshold // Pass threshold from scatterMarkings state
+          actualDistance: d.y,
+          minPoints: minMaxPoints.min,
+          maxPoints: minMaxPoints.max,
+          threshold: minMaxPoints.threshold
         }));
         dispatch(fetchAndProcessTimeSeriesData({
+          graphId,
           machineId: machine,
           cyclelogId: d.cycle_log_id,
           signal: 'spindle_1_load',
@@ -234,18 +237,19 @@ export const ScatterPlot = () => {
          .text(`Threshold: ${minMaxPoints.threshold}`);
       }
 
-  }, [scatterPoints, minMaxPoints, loading, error, dispatch, dimensions]);
+  }, [scatterPoints, minMaxPoints, loading, error, dispatch, dimensions, graphId]);
 
   return (
     <div ref={containerRef} className="w-full p-4 bg-white rounded-lg shadow-sm border">
       <h2 className="text-lg sm:text-xl font-bold mb-4">Distance vs Time Scatter Plot</h2>
       {loading === 'pending' && <div className="text-gray-600">Loading scatter plot data...</div>}
       {error && <div className="text-red-600">Error: {error}</div>}
-      {!loading && !error && scatterPoints.length === 0 && (
+      {/* Updated condition to prevent accessing .length on undefined */}
+      {!loading && !error && (!scatterPoints || scatterPoints.length === 0) && (
         <p className="text-gray-700">No scatter plot data available for the selected filters.</p>
       )}
       <div className='flex justify-between items-center sm:flex-row flex-col gap-2'>
-        <UnprocessedToolList />
+        <UnprocessedToolList graphId={graphId} /> 
         <GraphLabelDescription />
       </div>
       <div className="w-full overflow-x-auto">

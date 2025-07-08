@@ -15,7 +15,7 @@ import { fetchToolSequences } from '../../features/toolSequences/toolSequencesSl
 import Select from '../design-system/select'; // Correct default import for Select
 import { Input } from '../design-system/input'; // Correct named import for Input
 
-export const FilterHeading = ({ graphId = 'graph1' }) => {
+export const FilterHeading = ({ graphId = 'graph1', comparisonMode = false }) => {
   const dispatch = useDispatch();
   const filters = useSelector((state) => state.filters[graphId]);
   const { machine, startDate, startTime, endDate, endTime, sequenceTool } = filters;
@@ -33,17 +33,18 @@ export const FilterHeading = ({ graphId = 'graph1' }) => {
   };
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-slate-800 mb-2">
+    <div className={`p-6 ${comparisonMode ? 'flex flex-col items-center justify-center min-h-[540px] bg-white rounded-2xl shadow-medium border border-slate-100' : ''}`}>
+      <div className="mb-6 w-full max-w-md mx-auto">
+        <h2 className="text-xl font-bold text-slate-800 mb-2 text-center">
           Data Filters {graphId === 'graph1' ? '' : `(${graphId.toUpperCase()})`}
         </h2>
-        <p className="text-slate-600 text-sm">
+        <p className="text-slate-600 text-sm text-center">
           Configure parameters to filter and analyze machine performance data
         </p>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 items-end">
+      <form className={`w-full ${comparisonMode ? 'max-w-md mx-auto flex flex-col gap-3 flex-1' : 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 items-end'}`}
+        style={comparisonMode ? {minHeight: 0, flexGrow: 1} : {}}>
         <div>
           <label htmlFor={`machine-select-${graphId}`} className="block text-sm font-semibold text-slate-700 mb-2">
             Machine
@@ -59,7 +60,6 @@ export const FilterHeading = ({ graphId = 'graph1' }) => {
             className="w-full"
           />
         </div>
-
         <div>
           <label htmlFor={`start-date-${graphId}`} className="block text-sm font-semibold text-slate-700 mb-2">
             Start Date
@@ -72,7 +72,6 @@ export const FilterHeading = ({ graphId = 'graph1' }) => {
             className="w-full"
           />
         </div>
-
         <div>
           <label htmlFor={`start-time-${graphId}`} className="block text-sm font-semibold text-slate-700 mb-2">
             Start Time
@@ -85,7 +84,6 @@ export const FilterHeading = ({ graphId = 'graph1' }) => {
             className="w-full"
           />
         </div>
-
         <div>
           <label htmlFor={`end-date-${graphId}`} className="block text-sm font-semibold text-slate-700 mb-2">
             End Date
@@ -98,7 +96,6 @@ export const FilterHeading = ({ graphId = 'graph1' }) => {
             className="w-full"
           />
         </div>
-
         <div>
           <label htmlFor={`end-time-${graphId}`} className="block text-sm font-semibold text-slate-700 mb-2">
             End Time
@@ -111,7 +108,6 @@ export const FilterHeading = ({ graphId = 'graph1' }) => {
             className="w-full"
           />
         </div>
-
         <div>
           <label htmlFor={`tool-sequence-${graphId}`} className="block text-sm font-semibold text-slate-700 mb-2">
             Select Tool
@@ -124,17 +120,20 @@ export const FilterHeading = ({ graphId = 'graph1' }) => {
             className="w-full"
           />
         </div>
-
+        {/* Divider above search button in comparison mode */}
+        {comparisonMode && <div className="border-t border-slate-200 my-2"></div>}
         <button
+          type="button"
           onClick={handleSearch}
-          className="btn-primary flex items-center justify-center gap-2 w-full"
+          className={`btn-primary flex items-center justify-center gap-2 w-full ${comparisonMode ? 'mt-2' : ''}`}
+          style={comparisonMode ? {marginTop: 'auto'} : {}}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           Search
         </button>
-      </div>
+      </form>
     </div>
   );
 };

@@ -29,16 +29,16 @@ function ScatterPlotPage() {
         {isComparisonMode ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div className="card shadow-soft">
-              <FilterHeading graphId="graph1" />
+              <FilterHeading graphId="graph1" comparisonMode={true} />
             </div>
             <div className="card shadow-soft">
-              <FilterHeading graphId="graph2" />
+              <FilterHeading graphId="graph2" comparisonMode={true} />
             </div>
           </div>
         ) : (
           <div className="mb-8">
             <div className="card shadow-soft">
-              <FilterHeading graphId="graph1" />
+              <FilterHeading graphId="graph1" comparisonMode={false} />
             </div>
           </div>
         )}

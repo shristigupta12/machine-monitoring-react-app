@@ -53,3 +53,10 @@ code {
     font-size: 10px;
   }
 }
+
+.form-control:focus,
+.form-select:focus {
+  box-shadow: none !important;
+  border-color: #d1d5db !important; /* Tailwind's gray-300, or set to your preferred color */
+  outline: none !important;
+}

@@ -10,7 +10,7 @@ function ScatterPlotPage() {
 
   return (
     <div className="w-full">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Scatter Data Visualization</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Scatter Data</h1>
       <div className="mb-6 sm:mb-8">
         <FilterHeading />
       </div>

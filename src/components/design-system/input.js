@@ -1,14 +1,16 @@
 import Form from 'react-bootstrap/Form';
+import FloatingLabel from 'react-bootstrap/FloatingLabel';
 
-export const Input = ({ type = 'text', placeholder = 'Enter value', onChange, value, className = "", ...props }) => {
+export const Input = ({ type = 'text', placeholder = 'Enter value', onChange, value, className = "", label = '', ...props }) => {
     return (
-        <Form.Control
-            type={type}
-            placeholder={placeholder}
-            onChange={onChange}
-            value={value}
-            className={`form-control ${className}`}
-            {...props}
-        />
+        <FloatingLabel controlId={label} label={label} className={className}>
+            <Form.Control
+                type={type}
+                placeholder={placeholder || label}
+                onChange={onChange}
+                value={value}
+                {...props}
+            />
+        </FloatingLabel>
     )
 }

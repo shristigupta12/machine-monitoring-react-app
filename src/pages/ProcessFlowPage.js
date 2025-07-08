@@ -32,6 +32,8 @@ function ProcessFlowPage() {
   const [isBypassed, setIsBypassed] = useState(false);
   const [isNotAllowed, setIsNotAllowed] = useState(false);
   const [hoveredNodeDetails, setHoveredNodeDetails] = useState(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
 
   // Effect to fetch initial graph data when the component mounts
   useEffect(() => {
@@ -169,9 +171,23 @@ function ProcessFlowPage() {
   }, [selectedNodeId, newNodeName, newNodeStationNumber, isBypassed, isNotAllowed, graphData, updateGraphData]);
 
   const onNodesChange = useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    (changes) => {
+      // Check if any change is a drag operation
+      const hasDragChange = changes.some(change => change.type === 'position' && change.dragging !== undefined);
+      if (hasDragChange) {
+        const dragChange = changes.find(change => change.type === 'position' && change.dragging !== undefined);
+        setIsDragging(dragChange.dragging);
+        
+        // Hide hover details when dragging starts
+        if (dragChange.dragging) {
+          setHoveredNodeDetails(null);
+        }
+      }
+      setNodes((nds) => applyNodeChanges(changes, nds));
+    },
     [],
   );
+  
   const onEdgesChange = useCallback(
     (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
     [],
@@ -187,6 +203,9 @@ function ProcessFlowPage() {
 
   // Callback for mouse entering a node
   const onNodeMouseEnter = useCallback((event, node) => {
+    // Don't show hover details if currently dragging
+    if (isDragging) return;
+    
     if (graphData && graphData.prod_machine_map) {
       const fullNodeData = graphData.prod_machine_map.find(data => String(data.id) === node.id);
       if (fullNodeData) {
@@ -199,14 +218,23 @@ function ProcessFlowPage() {
           isBypassed: isNodeBypassed ? 'Yes' : 'No',
           isNotAllowed: isNodeNotAllowed ? 'Yes' : 'No',
         });
+        // Set mouse position for tooltip
+        setMousePosition({ x: event.clientX, y: event.clientY });
       }
     }
-  }, [graphData]);
+  }, [graphData, isDragging]);
 
   // Callback for mouse leaving a node
   const onNodeMouseLeave = useCallback(() => {
     setHoveredNodeDetails(null);
   }, []);
+
+  // Handle mouse move for dynamic tooltip positioning
+  const onMouseMove = useCallback((event) => {
+    if (hoveredNodeDetails && !isDragging) {
+      setMousePosition({ x: event.clientX, y: event.clientY });
+    }
+  }, [hoveredNodeDetails, isDragging]);
 
   if (!graphData) {
     return (
@@ -313,7 +341,10 @@ function ProcessFlowPage() {
         </div>
 
         {/* ReactFlow Container */}
-        <div className="flex-1 relative min-h-0 bg-gradient-to-br from-slate-50 to-blue-50">
+        <div 
+          className="flex-1 relative min-h-0 bg-gradient-to-br from-slate-50 to-blue-50"
+          onMouseMove={onMouseMove}
+        >
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -330,9 +361,16 @@ function ProcessFlowPage() {
             <Background variant="dots" gap={20} size={1} color="#cbd5e1" />
           </ReactFlow>
 
-          {/* Node Details Panel for Hover */}
-          {hoveredNodeDetails && (
-            <div className="absolute top-6 right-6 bg-white/95 backdrop-blur-sm border border-slate-200 rounded-xl p-4 shadow-strong z-50 max-w-xs">
+          {/* Dynamic Node Details Panel - Only show when not dragging */}
+          {hoveredNodeDetails && !isDragging && (
+            <div 
+              className="fixed bg-white/95 backdrop-blur-sm border border-slate-200 rounded-xl p-4 shadow-strong z-50 max-w-xs pointer-events-none"
+              style={{
+                left: mousePosition.x + 10,
+                top: mousePosition.y - 10,
+                transform: 'translateY(-50%)'
+              }}
+            >
               <h3 className="font-semibold text-sm mb-3 text-slate-800">Node Details</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">

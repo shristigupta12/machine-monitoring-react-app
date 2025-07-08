@@ -5,6 +5,7 @@ import { showTimeSeriesGraph, fetchAndProcessTimeSeriesData } from '../../../fea
 import * as d3 from 'd3';
 import moment from 'moment';
 import { GraphLabelDescription } from './graphLabelDescription';
+import { UnprocessedToolList } from './unprocessedToolList';
 
 export const ScatterPlot = () => {
   const dispatch = useDispatch();
@@ -233,7 +234,10 @@ export const ScatterPlot = () => {
       {!loading && !error && scatterPoints.length === 0 && (
         <p className="text-gray-700">No scatter plot data available for the selected filters.</p>
       )}
-      <GraphLabelDescription />
+      <div className='flex justify-between items-center sm:flex-row flex-col gap-2'>
+        <UnprocessedToolList />
+        <GraphLabelDescription />
+      </div>
       <div className="w-full overflow-x-auto">
         <svg ref={svgRef} className="w-full max-w-full"></svg>
       </div>

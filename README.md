@@ -1,70 +1,136 @@
-# Getting Started with Create React App
+This project implements a React application for industrial machine monitoring and process flow management, as detailed below:
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Implemented Features & Technologies
+The application is built using React.js with Redux Toolkit for state management, leveraging React Router DOM for navigation. Styling is handled with Tailwind CSS. Data for the application is simulated using local JSON files, mimicking API responses. Charting and graph visualizations are primarily implemented using D3.js and ReactFlow.
 
-## Available Scripts
+1. API Simulation
+The project simulates backend API calls by serving static JSON files.
 
-In the project directory, you can run:
 
-### `npm start`
+src/api/changelogApi.js: Imports changelog.json from Machine1-SSP0173 and Machine2-SSP0167 directories to simulate fetching tool sequence mappings, learned thresholds, and ideal signal data. 
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+src/api/predictionDataApi.js: Imports prediction_data.json for both machines, providing the scatter plot data points, including anomaly flags and unprocessed sequence counts.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
-### `npm test`
+src/api/timeSeriesApi.js: Imports various timeseries_cycledata_*.json files (red, green, black) for both machines to simulate fetching detailed time series data for actual signals. 
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
+src/api/processFlowApi.js: Imports graphViz.json to provide the data required for the process flow tree visualization. 
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Each API function simulates a network delay using 
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+setTimeout to mimic real-world asynchronous data fetching. 
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. State Management (Redux Toolkit)
+The application uses Redux Toolkit to manage global state:
 
-### `npm run eject`
+src/features/filters/filtersSlice.js: Manages the state for machine selection, start and end dates, and selected tool sequences on the Scatter Plot page.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+src/features/scatterMarkings/scatterMarkingsSlice.js: Handles fetching and processing of scatter plot data, including distance, anomaly status, and unprocessed_sequences from prediction_data.json.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+src/features/timeSeriesGraph/timeSeriesGraphSlice.js: Manages the visibility and data for the time series graph, including fetching actualSignalData and idealSignalData based on user interaction. 
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+src/features/toolSequences/toolSequencesSlice.js: Manages the state related to tool sequences, likely used for populating dropdowns and correlating with data.
 
-## Learn More
+3. Navigation
+A collapsible left sidebar (
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+src/components/layout/Sidebar.js) is implemented for navigating between the two main pages: "Scatter Plot" and "Process Flow". 
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+4. Page 1: Scatter Data Visualization (src/pages/ScatterPlotPage.js)
+This page displays interactive data visualizations:
 
-### Code Splitting
+Filtering and UI Controls (src/components/scatter-plot/filterHeading.js):
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Allows users to select a machine (e.g., 'SSP0173' or 'SSP0167').
 
-### Analyzing the Bundle Size
+Provides date and time range pickers for filtering data.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Includes a tool sequence selector.
 
-### Making a Progressive Web App
+Features a "Search" button to apply filters and a "Show Comparison" toggle. 
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Graph 1 - Distance vs Time Scatter Plot (src/components/scatter-plot/scatter-plot-graph/scatterPlot.js):
 
-### Advanced Configuration
+Implemented using D3.js.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Plots data points from 
 
-### Deployment
+prediction_data.json, where the X-axis represents epoch timestamps and the Y-axis represents 'distance' values. 
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
 
-### `npm run build` fails to minify
+Data points are color-coded: green for normal (
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+anomaly: false), red for anomalies (anomaly: true), and black for unprocessed/unknown status (anomaly: null). 
+
+
+
+A red threshold line is drawn based on learned_parameters.threshold from changelog.json.
+
+Hover tooltips display detailed cycle information (ID, start/end times, values).
+
+Clicking on a scatter plot dot triggers the display of the 
+
+Time Series Analysis graph below. 
+
+
+Graph 2 - Time Series Analysis (src/components/scatter-plot/time-series-graph/TimeSeriesGraph.js):
+
+Also implemented using D3.js.
+
+Appears when a scatter plot dot is clicked.
+
+Displays two lines: "Actual Signal" (blue) from 
+
+timeseries_cycledata_*.json and "Ideal Signal" (light blue) from changelog.json. 
+
+The X-axis represents time within the cycle (in seconds), and the Y-axis shows signal intensity values. 
+
+Includes logic to determine and display the "Reason for Unprocessed Cycle" for black data points, comparing actual data points against 
+
+min_points and max_points from changelog.json. 
+
+
+5. Page 2: Tree Visualization (src/pages/ProcessFlowPage.js)
+This page visualizes the industrial process flow:
+
+Node Visualization:
+
+Implemented using 
+
+ReactFlow. 
+
+
+Nodes represent machines, displaying their ID, Machine Number (
+
+station_number), and Name. 
+
+
+Nodes are color-coded based on their status: red for 
+
+not_allowed_list, blue for bypass_list, and white for others, as defined in graphViz.json. 
+
+
+Connections between nodes (
+
+input_stations) visually represent the process flow. 
+
+Interactive Features:
+
+Node Selection and Editing: Users can click on a node to select it, which populates a form on the left. The form allows editing of the node's name and station number. 
+
+
+Status Toggles: Checkboxes for "Is Bypassed" and "Is Not Allowed" allow dynamic modification of a node's color and status, which updates the bypass_list and not_allowed_list in the simulated graphData. 
+
+
+Hover Details: Moving the mouse over a node displays a tooltip with its full details (name, ID, station number, and current bypass/not allowed status). 
+
+
+Drag & Drop: Nodes can be freely dragged and dropped within the canvas, and their positions are updated dynamically. 
+
+6. Reusable UI Components
+The project includes basic, reusable UI components within the src/components/design-system directory, such as input.js and select.js, promoting a consistent design.
+
+7. Responsive Design
+The src/utils/responsive.js utility is present, suggesting an implementation for adapting layout and components to different screen sizes.

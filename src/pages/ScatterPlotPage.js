@@ -58,29 +58,33 @@ function ScatterPlotPage() {
 
         {isComparisonMode ? (
           // Comparison Mode Layout
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="flex gap-8">
             {/* Graph Set 1 */}
-            <div className="card shadow-soft p-6">
-              <h2 className="text-xl font-semibold mb-4 text-slate-800 flex items-center gap-2">
-                <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"></div>
-                Graph 1
-              </h2>
-              <ScatterPlot graphId="graph1" />
+            <div>
+              <div className="card shadow-soft p-6">
+                <h2 className="text-xl font-semibold mb-4 text-slate-800 flex items-center gap-2">
+                  <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"></div>
+                  Graph 1
+                </h2>
+                <ScatterPlot graphId="graph1" />
+              </div>
               {isTimeSeriesGraph1Visible && (
-                <div className="mt-8">
+                <div className="col-span-1 md:col-span-2 mt-8">
                   <TimeSeriesGraph graphId="graph1" />
                 </div>
               )}
             </div>
             {/* Graph Set 2 */}
-            <div className="card shadow-soft p-6">
-              <h2 className="text-xl font-semibold mb-4 text-slate-800 flex items-center gap-2">
-                <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full"></div>
-                Graph 2
-              </h2>
-              <ScatterPlot graphId="graph2" />
+            <div>
+              <div className="card shadow-soft p-6">
+                <h2 className="text-xl font-semibold mb-4 text-slate-800 flex items-center gap-2">
+                  <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full"></div>
+                  Graph 2
+                </h2>
+                <ScatterPlot graphId="graph2" />
+              </div>
               {isTimeSeriesGraph2Visible && (
-                <div className="mt-8">
+                <div className="col-span-1 md:col-span-2 mt-8">
                   <TimeSeriesGraph graphId="graph2" />
                 </div>
               )}
@@ -88,14 +92,16 @@ function ScatterPlotPage() {
           </div>
         ) : (
           // Single Graph Mode Layout
-          <div className="card shadow-soft p-6">
-            <ScatterPlot graphId="graph1" />
+          <>
+            <div className="card shadow-soft p-6">
+              <ScatterPlot graphId="graph1" />
+            </div>
             {isTimeSeriesGraph1Visible && (
               <div className="mt-8">
                 <TimeSeriesGraph graphId="graph1" />
               </div>
             )}
-          </div>
+          </>
         )}
       </div>
     </div>

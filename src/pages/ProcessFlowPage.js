@@ -249,7 +249,7 @@ function ProcessFlowPage() {
 
   return (
     <div className="w-full h-screen flex flex-col">
-      <div className="p-6 bg-white shadow-soft">
+      <div className="p-6">
         <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
           Process Flow Management
         </h1>

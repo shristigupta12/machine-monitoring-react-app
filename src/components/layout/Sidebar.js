@@ -42,7 +42,7 @@ export const Sidebar = () => {
                 transition-all duration-300 ease-in-out
                 ${isOpen 
                     ? 'w-64 translate-x-0' 
-                    : 'w-0 lg:w-16 -translate-x-full lg:translate-x-0'
+                    : 'w-0 lg:w-20 -translate-x-full lg:translate-x-0'
                 }
             `}>
                 <div className={`

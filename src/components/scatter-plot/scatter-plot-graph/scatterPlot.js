@@ -135,8 +135,10 @@ export const ScatterPlot = ({ graphId = 'graph1' }) => {
      .attr("r", dotRadius)
      .attr("fill", d => getColorForAnomaly(d.anomalyFlag))
      .on("mouseover", (event, d) => {
+        if (!tooltipRef.current || !containerRef.current) return;
+        const containerRect = containerRef.current.getBoundingClientRect();
         d3.select(tooltipRef.current)
-          .style("opacity", 0.9)
+          .style("opacity", 1)
           .html(`
             <strong>Time:</strong> ${moment(d.x).format('YYYY-MM-DD HH:mm:ss')}<br/>
             <strong>Distance:</strong> ${d.y.toFixed(2)}<br/>
@@ -144,10 +146,12 @@ export const ScatterPlot = ({ graphId = 'graph1' }) => {
             <strong>Anomaly (Raw Data):</strong> ${d.anomalyFlag === true ? 'True' : d.anomalyFlag === false ? 'False' : 'Null'}<br/>
             <strong>Tool Sequence:</strong> ${d.toolSequence}
           `)
-          .style("left", (event.pageX + 10) + "px")
-          .style("top", (event.pageY - 28) + "px");
+          .style("left", (event.clientX - containerRect.left + 10) + "px")
+          .style("top", (event.clientY - containerRect.top - 28) + "px")
+          .style("pointer-events", "none");
       })
      .on("mouseout", () => {
+        if (!tooltipRef.current) return;
         d3.select(tooltipRef.current).style("opacity", 0);
       })
      .on("click", (event, d) => {
@@ -240,7 +244,7 @@ export const ScatterPlot = ({ graphId = 'graph1' }) => {
   }, [scatterPoints, minMaxPoints, loading, error, dispatch, dimensions, graphId]);
 
   return (
-    <div ref={containerRef} className="w-full p-4 bg-white rounded-lg shadow-sm border">
+    <div ref={containerRef} className="w-full p-4 bg-white rounded-lg shadow-sm border" style={{ position: 'relative' }}>
       <h2 className="text-lg sm:text-xl font-bold mb-4">Distance vs Time Scatter Plot</h2>
       {loading === 'pending' && <div className="text-gray-600">Loading scatter plot data...</div>}
       {error && <div className="text-red-600">Error: {error}</div>}
@@ -252,14 +256,15 @@ export const ScatterPlot = ({ graphId = 'graph1' }) => {
         <UnprocessedToolList graphId={graphId} /> 
         <GraphLabelDescription />
       </div>
-      <div className="w-full overflow-x-auto">
+      <div className="w-full overflow-x-auto" style={{ position: 'relative' }}>
         <svg ref={svgRef} className="w-full max-w-full"></svg>
+        {/* Tooltip is now inside the SVG container and only for this chart */}
+        <div
+          ref={tooltipRef}
+          className="absolute bg-gray-800 text-white p-2 rounded-md pointer-events-none text-sm"
+          style={{ opacity: 0, position: 'absolute', zIndex: 1000 }}
+        ></div>
       </div>
-      <div
-        ref={tooltipRef}
-        className="absolute bg-gray-800 text-white p-2 rounded-md pointer-events-none text-sm"
-        style={{ opacity: 0, position: 'absolute', zIndex: 1000 }}
-      ></div>
     </div>
   );
 };

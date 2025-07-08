@@ -232,21 +232,21 @@ export const TimeSeriesGraph = ({ graphId = 'graph1' }) => { // Default to 'grap
       {!loading && !error && (actualSignalData && actualSignalData.length === 0) && (idealSignalData && idealSignalData.length === 0) && (
         <p className="text-gray-700">No time series data available for the selected cycle.</p>
       )}
-      <div className="w-full overflow-x-auto">
+      <div className="w-full overflow-x-auto" style={{ position: 'relative' }}>
         <svg ref={svgRef} className="w-full max-w-full"></svg>
+        {/* Tooltip is now inside the SVG container and only for this chart */}
+        <div
+          ref={tooltipRef}
+          className="absolute bg-gray-800 text-white p-2 rounded-md pointer-events-none text-xs"
+          style={{ opacity: 0, position: 'absolute', zIndex: 9999 }}
+        ></div>
       </div>
-      <div
-        ref={tooltipRef}
-        className="absolute bg-gray-800 text-white p-2 rounded-md pointer-events-none text-xs"
-        style={{ opacity: 0, position: 'absolute', zIndex: 9999 }}
-      ></div>
       <button
         onClick={() => dispatch(hideTimeSeriesGraph({ graphId }))} // Pass graphId to hide action
         className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors w-full sm:w-auto"
       >
         Hide Graph
       </button>
-
       {/* Reason for Unprocessed Cycle Section */}
       {selectedCycleData && anomalyFlag === null && ( // Only show for black points (anomalyFlag === null)
         <div className="mt-4 p-4 rounded-md border border-gray-300">
@@ -256,7 +256,6 @@ export const TimeSeriesGraph = ({ graphId = 'graph1' }) => { // Default to 'grap
                     <strong>Tool Sequence {toolSequence}:</strong> {unprocessedReason}
                 </p>
             </div>
-
             <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="p-3 bg-gray-50 rounded-md border border-gray-200">
                     <p className="text-sm font-medium text-gray-600">Actual Points (Distance)</p>

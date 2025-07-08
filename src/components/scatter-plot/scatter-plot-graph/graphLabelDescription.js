@@ -14,6 +14,10 @@ export const GraphLabelDescription = () => {
                 <span>Cycle Anomaly: Null</span>
             </div>
             <div className="flex items-center space-x-1 text-sm">
+                <span className="inline-block w-3 h-3 rounded-full" style={{ background: '#000000' }}></span>
+                <span>Sequence Anomaly: Null</span>
+            </div>
+            <div className="flex items-center space-x-1 text-sm">
                 <span className="inline-block w-2 h-[1px]" style={{ background: '#EF9A9A' }}></span>
                 <span className="inline-block w-2 h-[1px]" style={{ background: '#EF9A9A' }}></span>
                 <span>Threshold</span>

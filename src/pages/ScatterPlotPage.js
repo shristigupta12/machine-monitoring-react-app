@@ -9,19 +9,21 @@ function ScatterPlotPage() {
   const isTimeSeriesGraphVisible = useSelector((state) => state.timeSeriesGraph.isVisible);
 
   return (
-    <div className="w-full">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Scatter Data</h1>
-      <div className="mb-6 sm:mb-8">
-        <FilterHeading />
-      </div>
-      <div className="mt-6 sm:mt-8">
-        <ScatterPlot />
-      </div>
-      {isTimeSeriesGraphVisible && ( 
-        <div className="mt-6 sm:mt-8">
-          <TimeSeriesGraph />
+    <div className='flex'>
+      <div className="w-full ">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Scatter Data</h1>
+        <div className="mb-6 sm:mb-8">
+          <FilterHeading />
         </div>
-      )}
+        <div className="mt-6 sm:mt-8 ">
+          <ScatterPlot />
+        </div>
+        {isTimeSeriesGraphVisible && ( 
+          <div className="mt-6 sm:mt-8 ">
+            <TimeSeriesGraph />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

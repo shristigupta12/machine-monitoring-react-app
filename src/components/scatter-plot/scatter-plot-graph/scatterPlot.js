@@ -226,7 +226,7 @@ export const ScatterPlot = () => {
   }, [scatterPoints, minMaxPoints, loading, error, dispatch, dimensions]);
 
   return (
-    <div ref={containerRef} className="w-full p-4 bg-white rounded-lg shadow">
+    <div ref={containerRef} className="w-full p-4 bg-white rounded-lg shadow-sm border">
       <h2 className="text-lg sm:text-xl font-bold mb-4">Distance vs Time Scatter Plot</h2>
       {loading === 'pending' && <div className="text-gray-600">Loading scatter plot data...</div>}
       {error && <div className="text-red-600">Error: {error}</div>}

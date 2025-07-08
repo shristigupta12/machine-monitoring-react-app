@@ -184,7 +184,7 @@ export const TimeSeriesGraph = () => {
   }
 
   return (
-    <div ref={containerRef} className="w-full p-4 bg-white rounded-lg shadow mt-4" style={{ position: 'relative' }}>
+    <div ref={containerRef} className="w-full p-4 bg-white rounded-lg shadow-sm mt-4 border" style={{ position: 'relative' }}>
       <h3 className="text-base sm:text-lg font-bold mb-2">Time Series Analysis: {selectedCycleData?.signal}</h3>
       {loading === 'pending' && <div className="text-gray-600">Loading time series data...</div>}
       {error && <div className="text-red-600">Error: {error}</div>}

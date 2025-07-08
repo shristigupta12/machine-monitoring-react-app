@@ -29,7 +29,7 @@ export const Sidebar = () => {
             
             {/* Mobile hamburger button */}
             <button
-                className="fixed top-4 left-4 z-50 lg:hidden bg-white p-3 rounded-xl shadow-soft border border-slate-200 hover:shadow-medium transition-all duration-200"
+                className="fixed top-4 left-4 z-50 lg:hidden rounded-full p-1 bg-white shadow-soft border border-slate-200 hover:shadow-medium transition-all duration-200"
                 onClick={handleToggleSidebar}
             >
                 {isOpen ? <X className="w-5 h-5 text-slate-600" /> : <Menu className="w-5 h-5 text-slate-600" />}

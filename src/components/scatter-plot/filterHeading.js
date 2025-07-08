@@ -122,17 +122,6 @@ export const FilterHeading = ({ graphId = 'graph1', comparisonMode = false }) =>
         </div>
         {/* Divider above search button in comparison mode */}
         {comparisonMode && <div className="border-t border-slate-200 my-2"></div>}
-        <button
-          type="button"
-          onClick={handleSearch}
-          className={`btn-primary flex items-center justify-center gap-2 w-full ${comparisonMode ? 'mt-2' : ''}`}
-          style={comparisonMode ? {marginTop: 'auto'} : {}}
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          Search
-        </button>
       </form>
     </div>
   );

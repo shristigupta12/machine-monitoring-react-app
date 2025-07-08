@@ -4,11 +4,9 @@ import { fetchChangelog } from '../../api/changelogApi';
 
 export const fetchToolSequences = createAsyncThunk(
   'toolSequences/fetchToolSequences',
-  async (machineName, { rejectWithValue }) => { // Changed parameter name to machineName for clarity
-    console.log("Fetching tool sequences for machine:", machineName); // Debug log
+  async (machineName, { rejectWithValue }) => { 
     try {
       const changelogResponse = await fetchChangelog(machineName);
-      console.log("Changelog API Response:", changelogResponse); // Debug log
 
       // Corrected: Use machine_details.name to match the machineName
       const currentChangeLog = changelogResponse.Result.find(

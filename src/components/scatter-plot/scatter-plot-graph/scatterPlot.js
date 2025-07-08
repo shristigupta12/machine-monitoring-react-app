@@ -1,3 +1,4 @@
+// src/components/scatter-plot/scatter-plot-graph/scatterPlot.js
 import React, { useRef, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAndProcessScatterMarkings } from '../../../features/scatterMarkings/scatterMarkingsSlice';
@@ -10,7 +11,7 @@ import { UnprocessedToolList } from './unprocessedToolList';
 export const ScatterPlot = () => {
   const dispatch = useDispatch();
   const { machine, startDate, startTime, endDate, endTime, sequenceTool } = useSelector((state) => state.filters);
-  const { scatterPoints, minMaxPoints, loading, error } = useSelector((state) => state.scatterMarkings);
+  const { scatterPoints, minMaxPoints, loading, error } = useSelector((state) => state.scatterMarkings); // minMaxPoints is now available from scatterMarkingsSlice
 
   const svgRef = useRef();
   const tooltipRef = useRef();
@@ -147,13 +148,18 @@ export const ScatterPlot = () => {
         d3.select(tooltipRef.current).style("opacity", 0);
       })
      .on("click", (event, d) => {
-        // Dispatch action to show Graph 2 and fetch its data
+        // Removed the conditional check for d.anomalyFlag === null
+        // Now, clicking any point (red, green, or black) will show the time series graph.
         dispatch(showTimeSeriesGraph({
           machineId: machine,
           cyclelogId: d.cycle_log_id,
           signal: 'spindle_1_load', // Assuming this is the signal for Graph 2
           anomalyFlag: d.anomalyFlag,
           toolSequence: d.toolSequence,
+          actualDistance: d.y, // Pass the actual distance
+          minPoints: minMaxPoints.min, // Pass min_points from scatterMarkings state
+          maxPoints: minMaxPoints.max, // Pass max_points from scatterMarkings state
+          threshold: minMaxPoints.threshold // Pass threshold from scatterMarkings state
         }));
         dispatch(fetchAndProcessTimeSeriesData({
           machineId: machine,
@@ -161,6 +167,10 @@ export const ScatterPlot = () => {
           signal: 'spindle_1_load',
           anomalyFlag: d.anomalyFlag,
           toolSequence: d.toolSequence,
+          actualDistance: d.y,
+          minPoints: minMaxPoints.min,
+          maxPoints: minMaxPoints.max,
+          threshold: minMaxPoints.threshold
         }));
      });
 

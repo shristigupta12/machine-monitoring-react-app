@@ -1,10 +1,11 @@
+// src/features/timeSeriesGraph/timeSeriesGraphSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchTimeSeriesCycleData } from '../../api/timeSeriesApi';
 import { fetchChangelog } from '../../api/changelogApi';
 
 export const fetchAndProcessTimeSeriesData = createAsyncThunk(
   'timeSeriesGraph/fetchAndProcess',
-  async ({ machineId, cyclelogId, signal, anomalyFlag, toolSequence }, { rejectWithValue }) => {
+  async ({ machineId, cyclelogId, signal, anomalyFlag, toolSequence, actualDistance, minPoints, maxPoints, threshold }, { rejectWithValue }) => {
     try {
       // Fetch actual signal data (dark blue line)
       const actualSignalResponse = await fetchTimeSeriesCycleData(machineId, cyclelogId, signal, anomalyFlag);
@@ -36,7 +37,21 @@ export const fetchAndProcessTimeSeriesData = createAsyncThunk(
         });
       }
 
-      return { actualSignalData, idealSignalData, selectedCycleData: { machineId, cyclelogId, signal, anomalyFlag, toolSequence } };
+      return {
+        actualSignalData,
+        idealSignalData,
+        selectedCycleData: {
+          machineId,
+          cyclelogId,
+          signal,
+          anomalyFlag,
+          toolSequence,
+          actualDistance, // Add actualDistance here
+          minPoints,      // Add minPoints here
+          maxPoints,      // Add maxPoints here
+          threshold       // Add threshold here
+        }
+      };
     } catch (error) {
       console.error("Failed to fetch time series data:", error);
       return rejectWithValue(error.message || "Failed to load time series data.");
@@ -48,7 +63,7 @@ const timeSeriesGraphSlice = createSlice({
   name: 'timeSeriesGraph',
   initialState: {
     isVisible: false,
-    selectedCycleData: null,
+    selectedCycleData: null, // This will now hold more detailed info
     actualSignalData: [],
     idealSignalData: [],
     loading: 'idle',
@@ -57,9 +72,10 @@ const timeSeriesGraphSlice = createSlice({
   reducers: {
     showTimeSeriesGraph: (state, action) => {
       state.isVisible = true;
-      state.selectedCycleData = action.payload; // Store the clicked cycle data
-      state.actualSignalData = []; // Clear previous data
-      state.idealSignalData = []; // Clear previous data
+      // Store all relevant data directly from the action payload
+      state.selectedCycleData = action.payload;
+      state.actualSignalData = [];
+      state.idealSignalData = [];
     },
     hideTimeSeriesGraph: (state) => {
       state.isVisible = false;
@@ -79,7 +95,8 @@ const timeSeriesGraphSlice = createSlice({
         state.loading = 'idle';
         state.actualSignalData = action.payload.actualSignalData;
         state.idealSignalData = action.payload.idealSignalData;
-        state.selectedCycleData = action.payload.selectedCycleData; // Update with full fetched data if needed
+        // Update selectedCycleData with the full payload from the async thunk
+        state.selectedCycleData = action.payload.selectedCycleData;
       })
       .addCase(fetchAndProcessTimeSeriesData.rejected, (state, action) => {
         state.loading = 'idle';

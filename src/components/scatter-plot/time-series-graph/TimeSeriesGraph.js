@@ -1,3 +1,4 @@
+// src/components/scatter-plot/time-series-graph/TimeSeriesGraph.js
 import React, { useRef, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { hideTimeSeriesGraph } from '../../../features/timeSeriesGraph/timeSeriesGraphSlice';
@@ -179,6 +180,30 @@ export const TimeSeriesGraph = () => {
 
   }, [actualSignalData, idealSignalData, loading, error, isVisible, dimensions]);
 
+  // Determine the reason for unprocessed cycle and color
+  const getUnprocessedReason = (actual, min, max) => {
+    if (min === null || max === null) {
+      return { reason: "Configuration not found for this sequence", color: "red" };
+    } else if (actual < min) {
+      return { reason: "Less data points from the machine", color: "red" };
+    } else if (actual > max) {
+      return { reason: "More data points from the machine", color: "red" };
+    }
+    // This case should ideally not be hit for a black point if logic is sound
+    return { reason: "No clear reason (or within limits)", color: "green" };
+  };
+
+  const { actualDistance, minPoints, maxPoints, toolSequence } = selectedCycleData || {};
+  const { reason: unprocessedReason, color: reasonColor } = actualDistance !== undefined
+    ? getUnprocessedReason(actualDistance, minPoints, maxPoints)
+    : { reason: "N/A", color: "gray" };
+
+  // Calculate actual vs min/max expected points
+  const actualDataPointsCount = actualSignalData.length;
+  const minExpectedPoints = selectedCycleData?.minPoints !== null ? selectedCycleData.minPoints : 'N/A';
+  const maxExpectedPoints = selectedCycleData?.maxPoints !== null ? selectedCycleData.maxPoints : 'N/A';
+
+
   if (!isVisible || (actualSignalData.length === 0 && idealSignalData.length === 0 && loading === 'idle')) {
     return null;
   }
@@ -205,6 +230,33 @@ export const TimeSeriesGraph = () => {
       >
         Hide Graph
       </button>
+
+      {/* Reason for Unprocessed Cycle Section */}
+      {selectedCycleData && selectedCycleData.anomalyFlag === null && ( // Only show for black points
+        <div className="mt-4 p-4 rounded-md border border-gray-300">
+            <h4 className="text-md font-bold mb-2">Reason for Unprocessed Cycle</h4>
+            <div className={`p-3 rounded-md ${reasonColor === 'red' ? 'bg-red-100 border-red-400 text-red-700' : 'bg-green-100 border-green-400 text-green-700'} border-l-4`}>
+                <p>
+                    <strong>Tool Sequence {toolSequence}:</strong> {unprocessedReason}
+                </p>
+            </div>
+
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="p-3 bg-gray-50 rounded-md border border-gray-200">
+                    <p className="text-sm font-medium text-gray-600">Actual Points (Distance)</p>
+                    <p className="text-lg font-bold text-gray-800">{actualDistance !== undefined ? actualDistance.toFixed(2) : 'N/A'}</p>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-md border border-gray-200">
+                    <p className="text-sm font-medium text-gray-600">Min Expected Points</p>
+                    <p className="text-lg font-bold text-green-600">{minExpectedPoints}</p>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-md border border-gray-200">
+                    <p className="text-sm font-medium text-gray-600">Max Expected Points</p>
+                    <p className="text-lg font-bold text-green-600">{maxExpectedPoints}</p>
+                </div>
+            </div>
+        </div>
+      )}
     </div>
   );
 };

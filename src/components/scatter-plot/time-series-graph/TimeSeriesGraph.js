@@ -1,4 +1,5 @@
 // src/components/scatter-plot/time-series-graph/TimeSeriesGraph.js
+
 import React, { useRef, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { hideTimeSeriesGraph } from '../../../features/timeSeriesGraph/timeSeriesGraphSlice';
@@ -222,7 +223,7 @@ export const TimeSeriesGraph = () => {
       <div
         ref={tooltipRef}
         className="absolute bg-gray-800 text-white p-2 rounded-md pointer-events-none text-xs"
-        style={{ opacity: 1, position: 'absolute', zIndex: 9999 }}
+        style={{ opacity: 0, position: 'absolute', zIndex: 9999 }} // Changed opacity to 0
       ></div>
       <button
         onClick={() => dispatch(hideTimeSeriesGraph())}
